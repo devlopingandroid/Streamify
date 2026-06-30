@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   user: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: true, // true by default to allow check-auth loading checks
 };
 
 const authSlice = createSlice({
@@ -15,16 +15,16 @@ const authSlice = createSlice({
       state.isAuthenticated = !!action.payload;
       state.isLoading = false;
     },
+    setLoading: (state, action) => {
+      state.isLoading = action.payload;
+    },
     logoutLocal: (state) => {
       state.user = null;
       state.isAuthenticated = false;
       state.isLoading = false;
     },
-    setLoading: (state, action) => {
-      state.isLoading = action.payload;
-    },
   },
 });
 
-export const { setUser, logoutLocal, setLoading } = authSlice.actions;
+export const { setUser, setLoading, logoutLocal } = authSlice.actions;
 export default authSlice.reducer;

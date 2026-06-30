@@ -1,44 +1,42 @@
 import React from "react";
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { PageLoader } from "../components/ui/PageLoader";
 
-const FullScreenLoader = () => {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-slate-100 gap-4">
-      <div className="w-12 h-12 border-4 border-slate-800 border-t-brand-cyan rounded-full animate-spin" />
-      <p className="text-xs text-slate-400 tracking-widest uppercase">
-        Loading Safe Portal Session...
-      </p>
-    </div>
-  );
-};
-
-export const ProtectedRoute = () => {
+/**
+ * ProtectedRoute Guard placeholder.
+ * Protects authenticated layout endpoints.
+ */
+export const ProtectedRoute = ({ redirectPath = "/login" }) => {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
-  const location = useLocation();
 
   if (isLoading) {
-    return <FullScreenLoader />;
+    return <PageLoader message="Verifying session credentials..." />;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    return <Navigate to={redirectPath} replace />;
   }
 
   return <Outlet />;
 };
 
-export const PublicOnlyRoute = () => {
+/**
+ * PublicRoute Guard placeholder.
+ * Restricts access to public-only views (e.g. login/register pages) for authenticated users.
+ */
+export const PublicRoute = ({ redirectPath = "/" }) => {
   const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
 
   if (isLoading) {
-    return <FullScreenLoader />;
+    return <PageLoader message="Loading secure portal..." />;
   }
 
   if (isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={redirectPath} replace />;
   }
 
   return <Outlet />;
 };
+
 export default ProtectedRoute;

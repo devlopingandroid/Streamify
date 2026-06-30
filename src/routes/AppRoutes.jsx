@@ -1,50 +1,53 @@
-import React, { lazy, Suspense } from "react";
+import React, { Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ProtectedRoute, PublicOnlyRoute } from "./RouteGuards";
-import { MainLayout } from "../layouts/MainLayout";
-import { AuthLayout } from "../layouts/AuthLayout";
+import { ProtectedRoute, PublicRoute } from "./RouteGuards";
+import { PageLoader } from "../components/ui/PageLoader";
 
-// Lazy load route pages
-const LoginForm = lazy(() => import("../features/auth/components/LoginForm").then(module => ({ default: module.LoginForm })));
-const RegisterForm = lazy(() => import("../features/auth/components/RegisterForm").then(module => ({ default: module.RegisterForm })));
-const HomeFeed = lazy(() => import("../features/videos/components/HomeFeed").then(module => ({ default: module.HomeFeed })));
-const VideoDetail = lazy(() => import("../features/videos/components/VideoDetail").then(module => ({ default: module.VideoDetail })));
-const ChannelProfile = lazy(() => import("../features/channel/components/ChannelProfile").then(module => ({ default: module.ChannelProfile })));
-const HistoryList = lazy(() => import("../features/history/components/HistoryList").then(module => ({ default: module.HistoryList })));
-const SettingsPage = lazy(() => import("../components/Settings").then(module => ({ default: module.SettingsPage })));
-const StyleGuidePage = lazy(() => import("../components/StyleGuide").then(module => ({ default: module.StyleGuidePage })));
+// Placeholder Views for the Foundation phase (No business layouts or logic)
+const MockHome = () => (
+  <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center select-none">
+    <h2 className="text-xl font-bold text-slate-100 mb-2">Streamify Foundation Dashboard</h2>
+    <p className="text-xs text-slate-400 max-w-md leading-relaxed">
+      Welcome to the authenticated area. The media streaming modules will be mounted here in subsequent phases.
+    </p>
+  </div>
+);
 
-const FallbackLoader = () => (
-  <div className="flex justify-center items-center min-h-[60vh] w-full">
-    <div className="w-9 h-9 border-2 border-slate-800 border-t-brand-cyan rounded-full animate-spin" />
+const MockLogin = () => (
+  <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center select-none">
+    <h2 className="text-xl font-bold text-slate-100 mb-2">Authentication Gateway</h2>
+    <p className="text-xs text-slate-400 max-w-md leading-relaxed">
+      Sign-in forms and credentials verification will be wired here in the auth module phase.
+    </p>
+  </div>
+);
+
+const MockRegister = () => (
+  <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center select-none">
+    <h2 className="text-xl font-bold text-slate-100 mb-2">Create Account</h2>
+    <p className="text-xs text-slate-400 max-w-md leading-relaxed">
+      Profile creations and banner upload controls will be configured here.
+    </p>
   </div>
 );
 
 export const AppRoutes = () => {
   return (
     <BrowserRouter>
-      <Suspense fallback={<FallbackLoader />}>
+      <Suspense fallback={<PageLoader message="Loading page assets..." />}>
         <Routes>
           {/* Public Views */}
-          <Route element={<PublicOnlyRoute />}>
-            <Route element={<AuthLayout />}>
-              <Route path="/login" element={<LoginForm />} />
-              <Route path="/register" element={<RegisterForm />} />
-            </Route>
+          <Route element={<PublicRoute />}>
+            <Route path="/login" element={<MockLogin />} />
+            <Route path="/register" element={<MockRegister />} />
           </Route>
 
           {/* Secure Layout Portal */}
           <Route element={<ProtectedRoute />}>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<HomeFeed />} />
-              <Route path="/watch/:videoId" element={<VideoDetail />} />
-              <Route path="/history" element={<HistoryList />} />
-              <Route path="/c/:username" element={<ChannelProfile />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/styleguide" element={<StyleGuidePage />} />
-            </Route>
+            <Route path="/" element={<MockHome />} />
           </Route>
 
+          {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>

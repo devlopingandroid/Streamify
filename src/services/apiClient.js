@@ -2,70 +2,54 @@ import axios from "axios";
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 
+/**
+ * Normalized API error format.
+ */
+export const parseError = (error) => {
+  const message = error.response?.data?.message || error.message || "An unexpected error occurred.";
+  const status = error.response?.status || 500;
+  const errors = error.response?.data?.errors || null;
+  return { message, status, errors, originalError: error };
+};
+
 export const apiClient = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true, // required for httpOnly secure cookie transmission
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-let isRefreshing = false;
-let failedQueue = [];
+// Request Interceptor
+apiClient.interceptors.request.use(
+  (config) => {
+    // Config adjustments (e.g. adding request trace headers) can go here
+    return config;
+  },
+  (error) => {
+    return Promise.reject(parseError(error));
+  }
+);
 
-const processQueue = (error, token = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  failedQueue = [];
-};
-
-// Response Interceptor to capture 401 and execute silent refresh token flow
+// Response Interceptor
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
+    // Placeholder check for token refresh flows
+    // To be fully wired to auth store triggers in the authentication module phase
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      if (originalRequest.url === "/users/refresh-token") {
-        return Promise.reject(error);
-      }
-
       originalRequest._retry = true;
-
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then(() => apiClient(originalRequest))
-          .catch((err) => Promise.reject(err));
-      }
-
-      isRefreshing = true;
-
-      try {
-        await apiClient.post("/users/refresh-token");
-        isRefreshing = false;
-        processQueue(null);
-        return apiClient(originalRequest);
-      } catch (refreshError) {
-        isRefreshing = false;
-        processQueue(refreshError, null);
-
-        // Access the central Redux store and dispatch local logout
-        const storeModule = await import("../store");
-        storeModule.store.dispatch({ type: "auth/logoutLocal" });
-
-        window.dispatchEvent(new CustomEvent("auth-logout-redirect"));
-        return Promise.reject(refreshError);
-      }
+      
+      // Placeholder representation:
+      // return handleRefreshTokenFlow(originalRequest);
+      
+      return Promise.reject(parseError(error));
     }
 
-    return Promise.reject(error);
+    return Promise.reject(parseError(error));
   }
 );
+
 export default apiClient;

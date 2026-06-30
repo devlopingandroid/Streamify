@@ -12,7 +12,7 @@ export class ErrorBoundary extends Component {
     return { hasError: true, error };
   }
 
-  componentDidCatch(error, errorInfo) {
+  componentDidCatch(_error, _errorInfo) {
     // Standard system logging could go here, avoiding console logs in production
   }
 
