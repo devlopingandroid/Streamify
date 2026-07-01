@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { setUser } from "./store/authSlice";
+import { useCurrentUser } from "./hooks/useAuth";
 import { initializeTheme } from "./store/uiSlice";
 import { AppRoutes } from "./routes/AppRoutes";
 import { Toaster } from "react-hot-toast";
@@ -9,16 +9,11 @@ import "./styles/index.css";
 export const App = () => {
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    // Initialize user theme configurations
-    dispatch(initializeTheme());
-    
-    // Simulate check-auth initialization for the foundation phase
-    const timer = setTimeout(() => {
-      dispatch(setUser(null)); // Sets user to null and isLoading to false
-    }, 400);
+  // Execute startup cookies check validation via TanStack Query hook
+  useCurrentUser();
 
-    return () => clearTimeout(timer);
+  useEffect(() => {
+    dispatch(initializeTheme());
   }, [dispatch]);
 
   return (

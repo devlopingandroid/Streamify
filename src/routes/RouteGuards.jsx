@@ -4,13 +4,14 @@ import { useSelector } from "react-redux";
 import { PageLoader } from "../components/ui/PageLoader";
 
 /**
- * ProtectedRoute Guard placeholder.
- * Protects authenticated layout endpoints.
+ * ProtectedRoute Guard.
+ * Restricts access to authenticated users. Unauthenticated sessions redirect to /login.
  */
 export const ProtectedRoute = ({ redirectPath = "/login" }) => {
-  const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
+  const { isAuthenticated, isLoading, sessionChecked } = useSelector((state) => state.auth);
 
-  if (isLoading) {
+  // Block rendering and show fullscreen PageLoader until the initial check completes
+  if (isLoading || !sessionChecked) {
     return <PageLoader message="Verifying session credentials..." />;
   }
 
@@ -22,14 +23,15 @@ export const ProtectedRoute = ({ redirectPath = "/login" }) => {
 };
 
 /**
- * PublicRoute Guard placeholder.
- * Restricts access to public-only views (e.g. login/register pages) for authenticated users.
+ * PublicOnlyRoute Guard.
+ * Restricts access to unauthenticated users. Authenticated sessions redirect to /.
  */
-export const PublicRoute = ({ redirectPath = "/" }) => {
-  const { isAuthenticated, isLoading } = useSelector((state) => state.auth);
+export const PublicOnlyRoute = ({ redirectPath = "/" }) => {
+  const { isAuthenticated, isLoading, sessionChecked } = useSelector((state) => state.auth);
 
-  if (isLoading) {
-    return <PageLoader message="Loading secure portal..." />;
+  // Block rendering and show fullscreen PageLoader until the initial check completes
+  if (isLoading || !sessionChecked) {
+    return <PageLoader message="Initializing secure gateway..." />;
   }
 
   if (isAuthenticated) {

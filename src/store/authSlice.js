@@ -3,28 +3,37 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   user: null,
   isAuthenticated: false,
-  isLoading: true, // true by default to allow check-auth loading checks
+  isLoading: true,
+  sessionChecked: false,
 };
 
 const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    setUser: (state, action) => {
+    login: (state, action) => {
       state.user = action.payload;
-      state.isAuthenticated = !!action.payload;
+      state.isAuthenticated = true;
       state.isLoading = false;
+      state.sessionChecked = true;
     },
-    setLoading: (state, action) => {
-      state.isLoading = action.payload;
-    },
-    logoutLocal: (state) => {
+    logout: (state) => {
       state.user = null;
       state.isAuthenticated = false;
       state.isLoading = false;
+      state.sessionChecked = true;
+    },
+    updateUser: (state, action) => {
+      state.user = { ...state.user, ...action.payload };
+    },
+    clearAuth: (state) => {
+      state.user = null;
+      state.isAuthenticated = false;
+      state.isLoading = false;
+      state.sessionChecked = true;
     },
   },
 });
 
-export const { setUser, setLoading, logoutLocal } = authSlice.actions;
+export const { login, logout, updateUser, clearAuth } = authSlice.actions;
 export default authSlice.reducer;

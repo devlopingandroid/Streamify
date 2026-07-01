@@ -1,54 +1,69 @@
-import React, { Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { ProtectedRoute, PublicRoute } from "./RouteGuards";
+import React, { lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ProtectedRoute, PublicOnlyRoute } from "./RouteGuards";
+import { AppLayout } from "../layouts/AppLayout";
 import { PageLoader } from "../components/ui/PageLoader";
 
-// Placeholder Views for the Foundation phase (No business layouts or logic)
-const MockHome = () => (
-  <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center select-none">
-    <h2 className="text-xl font-bold text-slate-100 mb-2">Streamify Foundation Dashboard</h2>
-    <p className="text-xs text-slate-400 max-w-md leading-relaxed">
-      Welcome to the authenticated area. The media streaming modules will be mounted here in subsequent phases.
-    </p>
-  </div>
-);
+// Lazy load Pages
+const LandingPage = lazy(() => import("../pages/LandingPage").then(module => ({ default: module.LandingPage })));
+const LoginPage = lazy(() => import("../pages/LoginPage").then(module => ({ default: module.LoginPage })));
+const RegisterPage = lazy(() => import("../pages/RegisterPage").then(module => ({ default: module.RegisterPage })));
+const HomePage = lazy(() => import("../pages/HomePage").then(module => ({ default: module.HomePage })));
+const WatchPage = lazy(() => import("../pages/WatchPage").then(module => ({ default: module.WatchPage })));
+const ChannelPage = lazy(() => import("../pages/ChannelPage").then(module => ({ default: module.ChannelPage })));
+const SettingsPage = lazy(() => import("../pages/SettingsPage").then(module => ({ default: module.SettingsPage })));
+const SearchResultsPage = lazy(() => import("../pages/SearchResultsPage").then(module => ({ default: module.SearchResultsPage })));
+const HistoryPage = lazy(() => import("../pages/HistoryPage").then(module => ({ default: module.HistoryPage })));
+const WatchLaterPage = lazy(() => import("../pages/WatchLaterPage").then(module => ({ default: module.WatchLaterPage })));
+const LikedVideosPage = lazy(() => import("../pages/LikedVideosPage").then(module => ({ default: module.LikedVideosPage })));
+const SubscriptionsPage = lazy(() => import("../pages/SubscriptionsPage").then(module => ({ default: module.SubscriptionsPage })));
+const PlaylistsPage = lazy(() => import("../pages/PlaylistsPage").then(module => ({ default: module.PlaylistsPage })));
 
-const MockLogin = () => (
-  <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center select-none">
-    <h2 className="text-xl font-bold text-slate-100 mb-2">Authentication Gateway</h2>
-    <p className="text-xs text-slate-400 max-w-md leading-relaxed">
-      Sign-in forms and credentials verification will be wired here in the auth module phase.
-    </p>
-  </div>
-);
-
-const MockRegister = () => (
-  <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center select-none">
-    <h2 className="text-xl font-bold text-slate-100 mb-2">Create Account</h2>
-    <p className="text-xs text-slate-400 max-w-md leading-relaxed">
-      Profile creations and banner upload controls will be configured here.
-    </p>
-  </div>
-);
+// Error Pages
+const NotFoundPage = lazy(() => import("../pages/error/NotFoundPage").then(module => ({ default: module.NotFoundPage })));
+const ForbiddenPage = lazy(() => import("../pages/error/ForbiddenPage").then(module => ({ default: module.ForbiddenPage })));
+const ServerErrorPage = lazy(() => import("../pages/error/ServerErrorPage").then(module => ({ default: module.ServerErrorPage })));
+const OfflinePage = lazy(() => import("../pages/error/OfflinePage").then(module => ({ default: module.OfflinePage })));
+const MaintenancePage = lazy(() => import("../pages/error/MaintenancePage").then(module => ({ default: module.MaintenancePage })));
 
 export const AppRoutes = () => {
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader message="Loading page assets..." />}>
         <Routes>
-          {/* Public Views */}
-          <Route element={<PublicRoute />}>
-            <Route path="/login" element={<MockLogin />} />
-            <Route path="/register" element={<MockRegister />} />
+          {/* Public-Only Gateway (Sign-in / Register) */}
+          <Route element={<PublicOnlyRoute redirectPath="/" />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
           </Route>
 
-          {/* Secure Layout Portal */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<MockHome />} />
+          {/* Publicly Accessible Landing Index */}
+          <Route path="/landing" element={<LandingPage />} />
+
+          {/* Secure Layout Portal Area */}
+          <Route element={<ProtectedRoute redirectPath="/landing" />}>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/watch/:videoId" element={<WatchPage />} />
+              <Route path="/c/:username" element={<ChannelPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/search" element={<SearchResultsPage />} />
+              <Route path="/history" element={<HistoryPage />} />
+              <Route path="/watch-later" element={<WatchLaterPage />} />
+              <Route path="/liked-videos" element={<LikedVideosPage />} />
+              <Route path="/subscriptions" element={<SubscriptionsPage />} />
+              <Route path="/playlists" element={<PlaylistsPage />} />
+            </Route>
           </Route>
 
-          {/* Fallback */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          {/* Global Error Boundaries Routes */}
+          <Route path="/403" element={<ForbiddenPage />} />
+          <Route path="/500" element={<ServerErrorPage />} />
+          <Route path="/offline" element={<OfflinePage />} />
+          <Route path="/maintenance" element={<MaintenancePage />} />
+
+          {/* Catch-all 404 Route */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
