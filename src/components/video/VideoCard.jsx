@@ -1,19 +1,110 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { MoreVertical } from "lucide-react";
 import { VideoThumbnail } from "./VideoThumbnail";
 import { VideoMeta } from "./VideoMeta";
 import { Avatar } from "../ui/Avatar";
+import { ConfirmDialog } from "../ui/ConfirmDialog";
+import { useDeleteVideo } from "../../hooks/useDeleteVideo";
+import { useToggleVideoStatus } from "../../hooks/useToggleVideoStatus";
 import { truncateText } from "../../utils";
 
 export const VideoCard = ({ video, layout = "grid" }) => {
   const isList = layout === "list";
+  const { user } = useSelector((state) => state.auth);
+
+  // Ownership check
+  const ownerId = video.owner?._id || video.owner;
+  const isOwner = user && ownerId && user._id === ownerId;
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+
+  const deleteMutation = useDeleteVideo();
+  const toggleStatusMutation = useToggleVideoStatus();
+
+  const handleDeleteConfirm = () => {
+    deleteMutation.mutate(video._id, {
+      onSuccess: () => {
+        setConfirmDeleteOpen(false);
+      },
+    });
+  };
 
   return (
     <div 
-      className={`flex rounded-xl border border-slate-800/40 bg-slate-900/10 hover:border-slate-800 transition-all group overflow-hidden ${
+      className={`flex rounded-xl border border-slate-800/30 bg-slate-900/10 hover:bg-slate-900/40 hover:border-brand-cyan/30 hover:shadow-[0_4px_25px_rgba(6,182,212,0.06)] hover:-translate-y-0.5 transition-all duration-200 group overflow-hidden relative ${
         isList ? "flex-col sm:flex-row gap-4 p-3" : "flex-col gap-2"
       }`}
     >
+      {/* Management Actions (Only for owners) */}
+      {isOwner && (
+        <div className="absolute top-2 right-2 z-20">
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setMenuOpen(!menuOpen);
+            }}
+            className="w-7 h-7 rounded-full bg-slate-950/60 hover:bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-slate-100 transition-colors shadow cursor-pointer focus:outline-none"
+            aria-label="Manage video"
+          >
+            <MoreVertical size={14} />
+          </button>
+
+          {menuOpen && (
+            <>
+              {/* Overlay background to close the menu on clicking outside */}
+              <div 
+                className="fixed inset-0 z-30" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setMenuOpen(false);
+                }} 
+              />
+              <div 
+                className="absolute right-0 mt-1 w-32 rounded-lg border border-slate-800 bg-slate-900/90 backdrop-blur-md p-1 shadow-2xl z-40 animate-fade-in flex flex-col gap-0.5"
+                onClick={(e) => e.stopPropagation()} // Prevent card navigation
+              >
+                <Link
+                  to={`/edit-video/${video._id}`}
+                  onClick={() => setMenuOpen(false)}
+                  className="w-full text-left px-2 py-1.5 rounded text-[10px] font-semibold text-slate-300 hover:bg-slate-800/80 hover:text-slate-100 transition-colors block"
+                >
+                  Edit Video
+                </Link>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMenuOpen(false);
+                    toggleStatusMutation.mutate(video._id);
+                  }}
+                  disabled={toggleStatusMutation.isPending}
+                  className="w-full text-left px-2 py-1.5 rounded text-[10px] font-semibold text-slate-300 hover:bg-slate-800/80 hover:text-slate-100 transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {video.isPublished ? "Make Private" : "Publish"}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setMenuOpen(false);
+                    setConfirmDeleteOpen(true);
+                  }}
+                  className="w-full text-left px-2 py-1.5 rounded text-[10px] font-semibold text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                >
+                  Delete Video
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Thumbnail Trigger */}
       <Link 
         to={`/watch/${video._id}`}
@@ -31,7 +122,7 @@ export const VideoCard = ({ video, layout = "grid" }) => {
       <div className={`flex gap-3 p-3 ${isList ? "sm:p-0 flex-grow" : ""}`}>
         {!isList && (
           <Link to={`/landing`} className="flex-shrink-0">
-            <Avatar src={video.owner.avatar} name={video.owner.fullname} size="sm" />
+            <Avatar src={video.owner?.avatar || video.owner?.avatar} name={video.owner?.fullname || "User"} size="sm" />
           </Link>
         )}
 
@@ -43,7 +134,7 @@ export const VideoCard = ({ video, layout = "grid" }) => {
           </Link>
 
           <span className="text-[10px] text-slate-400 select-none">
-            {video.owner.fullname}
+            {video.owner?.fullname || "User"}
           </span>
 
           <VideoMeta views={video.views} createdAt={video.createdAt} />
@@ -55,7 +146,20 @@ export const VideoCard = ({ video, layout = "grid" }) => {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={confirmDeleteOpen}
+        onClose={() => setConfirmDeleteOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete this video?"
+        message="This action cannot be undone."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        isDanger={true}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   );
 };
 export default VideoCard;
+

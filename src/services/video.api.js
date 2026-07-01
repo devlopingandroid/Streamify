@@ -135,3 +135,25 @@ export const getVideoByIdApi = async (id) => {
     return { data: video };
   }
 };
+
+export const uploadVideoApi = async (formData, onUploadProgress) => {
+  const response = await apiClient.post("/videos", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    onUploadProgress,
+  });
+  return response.data;
+};
+
+export const deleteVideoApi = async (videoId) => {
+  const response = await apiClient.delete(`/videos/${videoId}`);
+  return response.data;
+};
+
+export const toggleVideoStatusApi = async (videoId) => {
+  const response = await apiClient.patch(`/videos/${videoId}/toggle-publish`);
+  return response.data;
+};
+
+

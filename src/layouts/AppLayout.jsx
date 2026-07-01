@@ -23,7 +23,8 @@ import {
   Bookmark,
   ThumbsUp,
   UserCheck,
-  PlaySquare
+  PlaySquare,
+  Upload
 } from "lucide-react";
 
 export const AppLayout = () => {
@@ -223,6 +224,15 @@ const TopNavbar = ({
                   <span>Account Settings</span>
                 </Link>
 
+                <Link
+                  to="/upload"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 transition-colors"
+                  onClick={onCloseDropdown}
+                >
+                  <Upload size={15} />
+                  <span>Upload Video</span>
+                </Link>
+
                 <hr className="border-slate-800 my-1" />
                 <button
                   onClick={() => {
@@ -259,74 +269,86 @@ const DesktopSidebar = ({ sidebarExpanded }) => {
       <nav className="flex flex-col gap-1 px-3">
         <Link
           to="/"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-colors h-12 ${isActive("/")
-              ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/")
+            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
+            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
             }`}
           title="Home Feed"
         >
-          <Home size={20} />
+          <Home size={20} className={`transition-transform duration-200 ${isActive("/") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
           {sidebarExpanded && <span className="text-xs">Home Feed</span>}
         </Link>
 
         <Link
           to="/subscriptions"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-colors h-12 ${isActive("/subscriptions")
-              ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/subscriptions")
+            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
+            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
             }`}
           title="Subscriptions"
         >
-          <UserCheck size={20} />
+          <UserCheck size={20} className={`transition-transform duration-200 ${isActive("/subscriptions") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
           {sidebarExpanded && <span className="text-xs">Subscriptions</span>}
         </Link>
 
         <Link
           to="/playlists"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-colors h-12 ${isActive("/playlists")
-              ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/playlists")
+            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
+            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
             }`}
           title="Playlists"
         >
-          <PlaySquare size={20} />
+          <PlaySquare size={20} className={`transition-transform duration-200 ${isActive("/playlists") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
           {sidebarExpanded && <span className="text-xs">Playlists</span>}
         </Link>
 
         <Link
           to="/history"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-colors h-12 ${isActive("/history")
-              ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/history")
+            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
+            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
             }`}
           title="Watch History"
         >
-          <Clock size={20} />
+          <Clock size={20} className={`transition-transform duration-200 ${isActive("/history") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
           {sidebarExpanded && <span className="text-xs">History</span>}
         </Link>
 
         <Link
           to="/watch-later"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-colors h-12 ${isActive("/watch-later")
-              ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/watch-later")
+            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
+            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
             }`}
           title="Watch Later"
         >
-          <Bookmark size={20} />
+          <Bookmark size={20} className={`transition-transform duration-200 ${isActive("/watch-later") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
           {sidebarExpanded && <span className="text-xs">Watch Later</span>}
         </Link>
 
         <Link
           to="/liked-videos"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-colors h-12 ${isActive("/liked-videos")
-              ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-              : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/liked-videos")
+            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
+            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
             }`}
           title="Liked Videos"
         >
-          <ThumbsUp size={20} />
+          <ThumbsUp size={20} className={`transition-transform duration-200 ${isActive("/liked-videos") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
           {sidebarExpanded && <span className="text-xs">Liked Videos</span>}
+        </Link>
+
+        <Link
+          to="/upload"
+          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/upload")
+            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
+            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+            }`}
+          title="Upload Video"
+        >
+          <Upload size={20} className={`transition-transform duration-200 ${isActive("/upload") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+          {sidebarExpanded && <span className="text-xs">Upload Video</span>}
         </Link>
       </nav>
 
@@ -428,6 +450,15 @@ const MobileDrawer = ({ onClose, onLogout }) => {
             >
               <ThumbsUp size={20} />
               <span className="text-xs font-semibold">Liked Videos</span>
+            </Link>
+
+            <Link
+              to="/upload"
+              onClick={onClose}
+              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              <Upload size={20} />
+              <span className="text-xs font-semibold">Upload Video</span>
             </Link>
           </nav>
         </div>

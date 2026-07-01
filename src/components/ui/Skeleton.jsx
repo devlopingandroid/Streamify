@@ -1,7 +1,7 @@
 import React from "react";
 
 export const Skeleton = ({ className = "", variant = "rect" }) => {
-  const baseClass = "bg-slate-800/60 animate-pulse";
+  const baseClass = "shimmer-bg";
   
   const variants = {
     circle: "rounded-full",

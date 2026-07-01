@@ -19,7 +19,7 @@ export const App = () => {
   return (
     <>
       <AppRoutes />
-      <Toaster 
+      <Toaster
         position="bottom-right"
         toastOptions={{
           className: "glassmorphism border border-slate-800 text-slate-100 text-xs rounded-lg p-4 shadow-2xl",

@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useVideo, useVideos } from "../hooks/useVideos";
+import { useVideoLikes } from "../hooks/useLikes";
 import { VideoPlayer } from "../components/video/VideoPlayer";
 import { VideoCard } from "../components/video/VideoCard";
+import { CommentSection } from "../components/video/CommentSection";
 import { VideoCardSkeleton } from "../components/video/VideoCardSkeleton";
 import { Avatar } from "../components/ui/Avatar";
 import { Button } from "../components/ui/Button";
@@ -22,22 +24,17 @@ export const WatchPage = () => {
   const { videoId } = useParams();
 
   const [descExpanded, setDescExpanded] = useState(false);
-  const [isLiked, setIsLiked] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   // Video Queries
   const { data: video, isLoading: videoLoading, error: videoError, refetch: refetchVideo } = useVideo(videoId);
   const { data: recommended, isLoading: recsLoading } = useVideos();
+  const { data: likesInfo, toggleLike, isToggling } = useVideoLikes(videoId);
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success("Watch link copied to clipboard.");
-  };
-
-  const handleLike = () => {
-    setIsLiked(!isLiked);
-    toast.success(isLiked ? "Removed like." : "Video added to liked catalog.");
   };
 
   const handleSave = () => {
@@ -107,13 +104,16 @@ export const WatchPage = () => {
             {/* Utility action buttons */}
             <div className="flex gap-2 items-center flex-wrap">
               <Button 
-                variant={isLiked ? "solid" : "outline"} 
+                variant={likesInfo?.likedByCurrentUser ? "solid" : "outline"} 
                 size="sm" 
-                className="gap-1.5 rounded-full"
-                onClick={handleLike}
+                className="gap-1.5 rounded-full transition-all duration-150 active:scale-95"
+                onClick={() => toggleLike()}
+                disabled={isToggling}
               >
-                <ThumbsUp size={14} />
-                <span className="text-[11px]">Like</span>
+                <ThumbsUp size={14} className={likesInfo?.likedByCurrentUser ? "fill-current text-cyan-400 animate-bounce" : "transition-transform"} />
+                <span className="text-[11px] font-semibold">
+                  {likesInfo?.likedByCurrentUser ? "Liked" : "Like"} ({formatNumber(likesInfo?.totalLikes || 0)})
+                </span>
               </Button>
               <Button 
                 variant="outline" 
@@ -156,6 +156,8 @@ export const WatchPage = () => {
               {descExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
           </div>
+
+          <CommentSection videoId={videoId} />
         </div>
 
         {/* Right Side: Suggestions List */}

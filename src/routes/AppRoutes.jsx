@@ -18,6 +18,8 @@ const WatchLaterPage = lazy(() => import("../pages/WatchLaterPage").then(module 
 const LikedVideosPage = lazy(() => import("../pages/LikedVideosPage").then(module => ({ default: module.LikedVideosPage })));
 const SubscriptionsPage = lazy(() => import("../pages/SubscriptionsPage").then(module => ({ default: module.SubscriptionsPage })));
 const PlaylistsPage = lazy(() => import("../pages/PlaylistsPage").then(module => ({ default: module.PlaylistsPage })));
+const UploadVideoPage = lazy(() => import("../pages/UploadVideoPage").then(module => ({ default: module.UploadVideoPage })));
+const EditVideoPage = lazy(() => import("../pages/EditVideoPage").then(module => ({ default: module.EditVideoPage })));
 
 // Error Pages
 const NotFoundPage = lazy(() => import("../pages/error/NotFoundPage").then(module => ({ default: module.NotFoundPage })));
@@ -53,7 +55,10 @@ export const AppRoutes = () => {
               <Route path="/liked-videos" element={<LikedVideosPage />} />
               <Route path="/subscriptions" element={<SubscriptionsPage />} />
               <Route path="/playlists" element={<PlaylistsPage />} />
+              <Route path="/upload" element={<UploadVideoPage />} />
+              <Route path="/edit-video/:videoId" element={<EditVideoPage />} />
             </Route>
+
           </Route>
 
           {/* Global Error Boundaries Routes */}
