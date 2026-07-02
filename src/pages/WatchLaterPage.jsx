@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useWatchLater } from "../hooks/useUserFeatures";
-import { useVideos } from "../hooks/useVideos";
 import { VideoGrid } from "../components/video/VideoGrid";
 import { VideoCard } from "../components/video/VideoCard";
 import { VideoCardSkeleton } from "../components/video/VideoCardSkeleton";
@@ -9,28 +8,17 @@ import { ViewToggle } from "../components/video/ViewToggle";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ErrorState } from "../components/ui/ErrorState";
 import { Bookmark, Trash2 } from "lucide-react";
-import { toast } from "react-hot-toast";
 
 export const WatchLaterPage = () => {
   const { data: watchLaterVideos, isLoading, error, refetch, toggleWatchLater } = useWatchLater();
-  const { data: fallbackVideos } = useVideos();
 
   const [layout, setLayout] = useState("grid");
   const [sortBy, setSortBy] = useState("recent");
 
-  const displayVideos = watchLaterVideos && watchLaterVideos.length > 0 
-    ? watchLaterVideos 
-    : (fallbackVideos || []).slice(0, 3);
+  const displayVideos = watchLaterVideos || [];
 
   const handleRemove = (videoId) => {
-    toggleWatchLater(videoId, {
-      onSuccess: () => {
-        toast.success("Removed from Watch Later.");
-      },
-      onError: () => {
-        toast.success("Removed from Watch Later.");
-      },
-    });
+    toggleWatchLater(videoId);
   };
 
   if (isLoading) {

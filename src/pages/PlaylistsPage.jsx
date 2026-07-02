@@ -1,88 +1,228 @@
 import React, { useState } from "react";
-import { usePlaylists } from "../hooks/useUserFeatures";
-import { useVideos } from "../hooks/useVideos";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useMyPlaylists, useDeletePlaylist, useUpdatePlaylistVisibility } from "../hooks/useUserFeatures";
+import { CreatePlaylistModal } from "../components/ui/CreatePlaylistModal";
+import { ConfirmDialog } from "../components/ui/ConfirmDialog";
 import { Button } from "../components/ui/Button";
-import { InputField } from "../components/ui/InputField";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ErrorState } from "../components/ui/ErrorState";
-import { VideoGrid } from "../components/video/VideoGrid";
-import { VideoCard } from "../components/video/VideoCard";
-import { PlaySquare, Plus, Trash2, X, AlertTriangle, ArrowRight } from "lucide-react";
+import { PlaySquare, Plus, Edit, Trash2 } from "lucide-react";
+import { formatDate } from "../utils";
 import { toast } from "react-hot-toast";
 
+const PlaylistCardSkeleton = () => {
+  return (
+    <div className="flex flex-col rounded-xl border border-slate-800 bg-slate-900/10 p-0 animate-pulse overflow-hidden select-none">
+      <div className="aspect-video w-full shimmer-bg bg-slate-850" />
+      <div className="p-4 flex flex-col gap-2">
+        <div className="flex justify-between items-center">
+          <div className="h-3 w-[60%] bg-slate-850 rounded" />
+          <div className="h-3.5 w-12 bg-slate-850 rounded-full" />
+        </div>
+        <div className="h-2.5 w-[85%] bg-slate-850 rounded mt-1" />
+        <div className="h-2.5 w-[50%] bg-slate-850 rounded" />
+        <div className="h-2 w-20 bg-slate-850 rounded mt-4" />
+      </div>
+    </div>
+  );
+};
+
+const PlaylistCard = ({ playlist, onEdit, onDelete, onVisibilityToggle, isVisibilityUpdating }) => {
+  const { user: currentUser } = useSelector((state) => state.auth);
+  const firstVideoThumbnail = playlist.videos?.[0]?.thumbnail;
+  const totalVideos = playlist.videos?.length || playlist.videosCount || 0;
+  const formattedDate = formatDate(playlist.createdAt, "standard");
+
+  // Verify ownership
+  const isOwner = currentUser?._id && (
+    playlist.owner === currentUser._id || 
+    playlist.owner?._id === currentUser._id ||
+    playlist.owner?.username === currentUser.username
+  );
+
+  return (
+    <Link 
+      to={`/playlists/${playlist._id}`}
+      className="group flex flex-col rounded-xl overflow-hidden border border-slate-800 bg-slate-900/10 hover:border-slate-700/60 hover:bg-slate-900/20 transition-all duration-300 relative text-left"
+    >
+      {/* Thumbnail Stack */}
+      <div className="relative aspect-video w-full bg-slate-950 overflow-hidden flex items-center justify-center border-b border-slate-800">
+        {firstVideoThumbnail ? (
+          <img 
+            src={firstVideoThumbnail} 
+            alt={playlist.name} 
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-slate-950 text-slate-700">
+            <PlaySquare size={32} className="text-slate-800 mb-1" />
+            <span className="text-[9px] uppercase font-semibold tracking-wider text-slate-600">Empty Playlist</span>
+          </div>
+        )}
+        
+        {/* Playlist Video Count Sidebar overlay */}
+        <div className="absolute right-0 top-0 bottom-0 w-[36%] bg-slate-950/80 backdrop-blur-[4px] flex flex-col items-center justify-center text-slate-100 gap-1 border-l border-slate-800/40 select-none">
+          <PlaySquare size={16} className="text-brand-cyan" />
+          <span className="text-xs font-bold">{totalVideos}</span>
+          <span className="text-[8px] uppercase tracking-wider font-semibold text-slate-400">Videos</span>
+        </div>
+      </div>
+
+      {/* Info panel details */}
+      <div className="p-4 flex flex-col gap-1.5 flex-grow justify-between select-none">
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between items-start gap-2">
+            <h3 className="text-xs font-bold text-slate-200 group-hover:text-brand-cyan transition-colors truncate flex-grow">
+              {playlist.name}
+            </h3>
+            {isOwner ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onVisibilityToggle(playlist);
+                }}
+                disabled={isVisibilityUpdating}
+                className={`text-[8px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full cursor-pointer hover:opacity-85 transition-opacity flex-shrink-0 disabled:opacity-50 ${
+                  playlist.visibility?.toLowerCase() === "public" 
+                    ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" 
+                    : "bg-slate-800 text-slate-400 border border-slate-700/60"
+                }`}
+                title="Click to toggle visibility"
+              >
+                <span className="capitalize">{playlist.visibility || "public"}</span>
+              </button>
+            ) : (
+              <span className={`text-[8px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full flex-shrink-0 ${
+                playlist.visibility?.toLowerCase() === "public" 
+                  ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" 
+                  : "bg-slate-800 text-slate-400 border border-slate-700/60"
+              }`}>
+                <span className="capitalize">{playlist.visibility || "public"}</span>
+              </span>
+            )}
+          </div>
+          
+          <p className="text-[10px] text-slate-500 line-clamp-2 min-h-[30px] leading-relaxed">
+            {playlist.description || "No description provided."}
+          </p>
+        </div>
+
+        <div className="border-t border-slate-800/50 pt-2 mt-2 flex justify-between items-center text-[9px] text-slate-500">
+          <span>Created {formattedDate}</span>
+          {isOwner && (
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  onEdit(playlist);
+                }}
+                className="p-1.5 rounded text-slate-500 hover:text-cyan-400 transition-colors cursor-pointer"
+                title="Edit Playlist"
+              >
+                <Edit size={12} />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  onDelete(playlist);
+                }}
+                className="p-1.5 rounded text-slate-500 hover:text-red-400 transition-colors cursor-pointer"
+                title="Delete Playlist"
+              >
+                <Trash2 size={12} />
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+};
+
 export const PlaylistsPage = () => {
-  const { 
-    data: playlists, 
-    isLoading, 
-    error, 
-    refetch, 
-    createPlaylist, 
-    isCreating, 
-    deletePlaylist, 
-    isDeleting 
-  } = usePlaylists();
+  const { data: playlists, isLoading, error, refetch } = useMyPlaylists();
   
-  const { data: fallbackVideos } = useVideos();
-
-  const [newPlaylistName, setNewPlaylistName] = useState("");
+  // Actions states
   const [showCreateModal, setShowCreateModal] = useState(false);
-  
-  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [playlistToEdit, setPlaylistToEdit] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
   const [playlistToDelete, setPlaylistToDelete] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [playlistToToggleVisibility, setPlaylistToToggleVisibility] = useState(null);
+  const [showVisibilityConfirm, setShowVisibilityConfirm] = useState(false);
 
-  const handleCreate = (e) => {
-    e.preventDefault();
-    if (!newPlaylistName.trim()) {
-      toast.error("Playlist name cannot be empty");
-      return;
-    }
-    
-    // Call mutation or simulate success
-    createPlaylist({ name: newPlaylistName }, {
+  // Mutations
+  const deletePlaylistMutation = useDeletePlaylist();
+  const updateVisibilityMutation = useUpdatePlaylistVisibility();
+
+  const handleEditInit = (playlist) => {
+    setPlaylistToEdit(playlist);
+    setShowEditModal(true);
+  };
+
+  const handleDeleteInit = (playlist) => {
+    setPlaylistToDelete(playlist);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!playlistToDelete) return;
+    deletePlaylistMutation.mutate(playlistToDelete._id, {
       onSuccess: () => {
-        toast.success(`Created playlist "${newPlaylistName}"`);
-        setNewPlaylistName("");
-        setShowCreateModal(false);
+        setPlaylistToDelete(null);
+        setShowDeleteConfirm(false);
       },
-      onError: () => {
-        // Optimistic UI updates
-        toast.success(`Created playlist "${newPlaylistName}"`);
-        setNewPlaylistName("");
-        setShowCreateModal(false);
-      }
     });
   };
 
-  const handleDelete = () => {
-    if (!playlistToDelete) return;
-    deletePlaylist(playlistToDelete._id, {
-      onSuccess: () => {
-        toast.success("Playlist deleted successfully.");
-        setPlaylistToDelete(null);
-        setShowDeleteConfirm(false);
-        if (selectedPlaylist?._id === playlistToDelete._id) {
-          setSelectedPlaylist(null);
+  const handleVisibilityToggle = (playlist) => {
+    const nextVisibility = playlist.visibility?.toLowerCase() === "public" ? "private" : "public";
+    if (nextVisibility === "private") {
+      setPlaylistToToggleVisibility(playlist);
+      setShowVisibilityConfirm(true);
+    } else {
+      // Toggle immediately for Private -> Public
+      updateVisibilityMutation.mutate(
+        { playlistId: playlist._id, visibility: "public" },
+        {
+          onSuccess: () => {
+            toast.success("Playlist visibility updated to Public.");
+          },
         }
-      },
-      onError: () => {
-        toast.success("Playlist deleted successfully.");
-        setPlaylistToDelete(null);
-        setShowDeleteConfirm(false);
-        if (selectedPlaylist?._id === playlistToDelete._id) {
-          setSelectedPlaylist(null);
-        }
+      );
+    }
+  };
+
+  const handleVisibilityToggleConfirm = () => {
+    if (!playlistToToggleVisibility) return;
+    updateVisibilityMutation.mutate(
+      { playlistId: playlistToToggleVisibility._id, visibility: "private" },
+      {
+        onSuccess: () => {
+          setPlaylistToToggleVisibility(null);
+          setShowVisibilityConfirm(false);
+          toast.success("Playlist is now Private.");
+        },
       }
-    });
+    );
   };
 
   if (isLoading) {
     return (
-      <div className="p-6 md:p-8 flex flex-col gap-6 select-none animate-pulse">
-        <div className="h-6 w-48 bg-slate-800 rounded" />
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={`pl-skel-${idx}`} className="h-28 bg-slate-900/40 border border-slate-800 rounded-xl" />
+      <div className="p-6 md:p-8 flex flex-col gap-8 max-w-[1440px] mx-auto select-none animate-pulse">
+        <div className="pb-4 border-b border-slate-800/60">
+          <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2">
+            <PlaySquare size={20} className="text-slate-400" />
+            <span>Library Playlists</span>
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">Organize your workspace streams in custom playlists.</p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Array.from({ length: 4 }).map((_, idx) => (
+            <PlaylistCardSkeleton key={`playlists-skel-${idx}`} />
           ))}
         </div>
       </div>
@@ -94,7 +234,7 @@ export const PlaylistsPage = () => {
       <div className="p-6 md:p-8">
         <ErrorState 
           title="Playlists Access Failure"
-          description="We had trouble establishing connection to retrieve playlists."
+          description="We had trouble retrieving your playlist catalog."
           onRetry={refetch}
         />
       </div>
@@ -104,7 +244,7 @@ export const PlaylistsPage = () => {
   const hasPlaylists = playlists && playlists.length > 0;
 
   return (
-    <div className="p-6 md:p-8 flex flex-col gap-8 text-slate-100 select-none animate-fade-in relative">
+    <div className="p-6 md:p-8 flex flex-col gap-8 text-slate-100 select-none animate-fade-in max-w-[1440px] mx-auto relative font-sans">
       
       {/* Header section */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-800/60">
@@ -133,133 +273,67 @@ export const PlaylistsPage = () => {
           description="Create your first playlist folder using the button above."
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-8">
-          {/* Playlists Left Side List */}
-          <div className="flex flex-col gap-3">
-            {playlists.map((pl) => (
-              <div 
-                key={pl._id}
-                className={`flex justify-between items-center p-4 rounded-xl border transition-colors cursor-pointer ${
-                  selectedPlaylist?._id === pl._id 
-                    ? "bg-cyan-500/10 border-brand-cyan text-brand-cyan"
-                    : "bg-slate-900/20 border-slate-800 hover:border-slate-700 text-slate-300"
-                }`}
-                onClick={() => setSelectedPlaylist(pl)}
-              >
-                <div className="flex flex-col min-w-0">
-                  <span className="text-xs font-semibold truncate">{pl.name}</span>
-                  <span className="text-[10px] text-slate-500 mt-0.5">{pl.videosCount || 0} videos</span>
-                </div>
-                
-                <div className="flex items-center gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
-                  <button 
-                    onClick={() => { setPlaylistToDelete(pl); setShowDeleteConfirm(true); }}
-                    className="p-1 rounded text-slate-500 hover:text-red-400 cursor-pointer"
-                    title="Delete playlist"
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                  <ArrowRight size={14} className={selectedPlaylist?._id === pl._id ? "text-brand-cyan" : "text-slate-600"} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Playlist Right Side Videos Detail View */}
-          <div className="rounded-xl border border-slate-800/40 bg-slate-900/10 p-6 flex flex-col min-h-[300px]">
-            {selectedPlaylist ? (
-              <div className="flex flex-col gap-6">
-                <div>
-                  <h2 className="text-sm font-bold text-slate-200">{selectedPlaylist.name}</h2>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Contains {selectedPlaylist.videosCount || 0} media streams</p>
-                </div>
-                
-                {/* Videos lists inside the selected playlist */}
-                <VideoGrid className="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3!">
-                  {(fallbackVideos || []).slice(0, selectedPlaylist.videosCount || 1).map((video) => (
-                    <VideoCard key={video._id} video={video} />
-                  ))}
-                </VideoGrid>
-              </div>
-            ) : (
-              <div className="flex-grow flex flex-col items-center justify-center text-center p-8 text-slate-500">
-                <PlaySquare size={36} className="text-slate-700 mb-2" />
-                <p className="text-xs">Select a playlist card from the sidebar to view videos.</p>
-              </div>
-            )}
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {playlists.map((pl) => (
+            <PlaylistCard 
+              key={pl._id} 
+              playlist={pl} 
+              onEdit={handleEditInit}
+              onDelete={handleDeleteInit}
+              onVisibilityToggle={handleVisibilityToggle}
+              isVisibilityUpdating={playlistToToggleVisibility?._id === pl._id && updateVisibilityMutation.isPending}
+            />
+          ))}
         </div>
       )}
 
-      {/* Create Playlist Modal Dialog */}
-      {showCreateModal && (
-        <>
-          <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[2000]" onClick={() => setShowCreateModal(false)} />
-          <form 
-            onSubmit={handleCreate}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[400px] rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl z-[2001] animate-fade-in flex flex-col gap-4 text-left"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-200">Create New Playlist</h3>
-              <button 
-                type="button" 
-                onClick={() => setShowCreateModal(false)}
-                className="text-slate-500 hover:text-slate-300 cursor-pointer"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            
-            <InputField 
-              label="Playlist Title" 
-              placeholder="e.g. Distributed Core Systems"
-              value={newPlaylistName}
-              onChange={(e) => setNewPlaylistName(e.target.value)}
-              disabled={isCreating}
-              autoFocus
-            />
+      {/* Create Playlist Modal */}
+      <CreatePlaylistModal 
+        isOpen={showCreateModal} 
+        onClose={() => setShowCreateModal(false)} 
+      />
 
-            <div className="flex justify-end gap-2.5 mt-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => setShowCreateModal(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="solid" size="sm" isLoading={isCreating}>
-                Create Folder
-              </Button>
-            </div>
-          </form>
-        </>
-      )}
+      {/* Edit Playlist Modal */}
+      <CreatePlaylistModal 
+        isOpen={showEditModal} 
+        onClose={() => {
+          setShowEditModal(false);
+          setPlaylistToEdit(null);
+        }} 
+        playlist={playlistToEdit}
+      />
 
       {/* Delete Confirmation Dialog */}
-      {showDeleteConfirm && (
-        <>
-          <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[2000]" onClick={() => setShowDeleteConfirm(false)} />
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-[400px] rounded-xl border border-slate-800 bg-slate-900 p-6 shadow-2xl z-[2001] animate-fade-in">
-            <div className="flex gap-3 text-left">
-              <div className="w-10 h-10 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 flex-shrink-0">
-                <AlertTriangle size={18} />
-              </div>
-              <div className="flex flex-col flex-grow">
-                <h3 className="text-sm font-semibold text-slate-200">Delete playlist?</h3>
-                <p className="text-2xs text-slate-500 leading-relaxed mt-1">
-                  This action deletes the folder "{playlistToDelete?.name}". Videos inside are not affected.
-                </p>
-                <div className="flex justify-end gap-2.5 mt-5">
-                  <Button variant="outline" size="sm" onClick={() => setShowDeleteConfirm(false)}>
-                    Cancel
-                  </Button>
-                  <Button variant="solid" size="sm" className="bg-red-500 hover:bg-red-600 text-white" onClick={handleDelete} isLoading={isDeleting}>
-                    Confirm Delete
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+      <ConfirmDialog 
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setPlaylistToDelete(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Playlist"
+        message={`Are you sure you want to delete the playlist "${playlistToDelete?.name}"? Videos contained inside will not be affected.`}
+        confirmLabel="Delete"
+        isDanger={true}
+        isLoading={deletePlaylistMutation.isPending}
+      />
+
+      {/* Visibility Confirmation Dialog */}
+      <ConfirmDialog 
+        isOpen={showVisibilityConfirm}
+        onClose={() => {
+          setShowVisibilityConfirm(false);
+          setPlaylistToToggleVisibility(null);
+        }}
+        onConfirm={handleVisibilityToggleConfirm}
+        title="Change Visibility to Private"
+        message={`Are you sure you want to make "${playlistToToggleVisibility?.name}" Private? It will no longer be visible on your public channel.`}
+        confirmLabel="Make Private"
+        isLoading={updateVisibilityMutation.isPending}
+      />
 
     </div>
   );
 };
+
 export default PlaylistsPage;

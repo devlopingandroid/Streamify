@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useChannel } from "../hooks/useUser";
+import { useSubscription, useChannelSubscribers } from "../hooks/useUserFeatures";
 import {
   useProfileUploadedVideos,
   useProfileLikedVideos,
@@ -10,6 +11,7 @@ import {
 } from "../hooks/useProfile";
 import { Avatar } from "../components/ui/Avatar";
 import { Button } from "../components/ui/Button";
+import { Modal } from "../components/ui/Modal";
 import { VideoGrid } from "../components/video/VideoGrid";
 import { VideoCard } from "../components/video/VideoCard";
 import { VideoCardSkeleton } from "../components/video/VideoCardSkeleton";
@@ -18,7 +20,6 @@ import { ErrorState } from "../components/ui/ErrorState";
 import { PageLoader } from "../components/ui/PageLoader";
 import { Users, Mail, Settings } from "lucide-react";
 import { formatNumber } from "../utils";
-import { toast } from "react-hot-toast";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
@@ -49,11 +50,88 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   );
 };
 
+const SubscriberListItem = ({ subscriber }) => {
+  const { user: currentUser } = useSelector((state) => state.auth);
+  const {
+    subscribed,
+    toggleSubscription,
+    isToggling,
+  } = useSubscription(subscriber._id);
+
+  const isSelf = currentUser?._id === subscriber._id;
+
+  return (
+    <div className="flex items-center justify-between gap-4 py-1.5 select-none">
+      <div className="flex items-center gap-3 min-w-0">
+        <Link to={`/c/${subscriber.username}`} className="flex-shrink-0">
+          <Avatar src={subscriber.avatar} name={subscriber.fullname} size="sm" />
+        </Link>
+        <div className="flex flex-col min-w-0 text-left">
+          <Link 
+            to={`/c/${subscriber.username}`} 
+            className="text-xs font-bold text-slate-200 truncate hover:text-brand-cyan transition-colors"
+          >
+            {subscriber.fullname}
+          </Link>
+          <span className="text-[10px] text-slate-500 truncate">@{subscriber.username}</span>
+        </div>
+      </div>
+      {!isSelf && (
+        <Button
+          variant={subscribed ? "outline" : "solid"}
+          size="sm"
+          className="rounded-full flex-shrink-0 text-2xs px-2.5 py-1 h-7"
+          onClick={() => toggleSubscription()}
+          isLoading={isToggling}
+        >
+          {subscribed ? "Subscribed" : "Subscribe"}
+        </Button>
+      )}
+    </div>
+  );
+};
+
+const SubscriberListModal = ({ isOpen, onClose, channelId }) => {
+  const { data: subscribers, isLoading, error } = useChannelSubscribers(channelId);
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} title="Subscribers">
+      {isLoading ? (
+        <div className="flex flex-col gap-4 py-2">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <div key={`sub-skel-${idx}`} className="flex items-center gap-3 animate-pulse">
+              <div className="w-10 h-10 rounded-full bg-slate-800" />
+              <div className="flex-grow flex flex-col gap-1.5">
+                <div className="w-24 h-3 bg-slate-800 rounded" />
+                <div className="w-16 h-2 bg-slate-800 rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : error ? (
+        <div className="text-xs text-red-400 py-4 text-center">
+          Failed to load subscribers. Connection refused.
+        </div>
+      ) : !subscribers || subscribers.length === 0 ? (
+        <div className="text-xs text-slate-500 py-6 text-center italic">
+          No subscribers yet.
+        </div>
+      ) : (
+        <div className="flex flex-col gap-4 max-h-[50vh] overflow-y-auto pr-1">
+          {subscribers.map((subscriber) => (
+            <SubscriberListItem key={subscriber._id} subscriber={subscriber} />
+          ))}
+        </div>
+      )}
+    </Modal>
+  );
+};
+
 export const ChannelPage = () => {
   const { username } = useParams();
   const { user: currentUser } = useSelector((state) => state.auth);
   const [activeTab, setActiveTab] = useState("videos");
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscribersModalOpen, setSubscribersModalOpen] = useState(false);
 
   // Pagination states
   const [uploadedPage, setUploadedPage] = useState(1);
@@ -63,7 +141,20 @@ export const ChannelPage = () => {
   // Queries
   const { data: channel, isLoading, error, refetch } = useChannel(username);
 
+  // Subscription Hook Integration
+  const {
+    subscribed: isSubscribed,
+    subscribersCount: dynamicSubscribersCount,
+    toggleSubscription,
+    isToggling: isSubscribing,
+    isLoading: isSubscriptionLoading,
+  } = useSubscription(channel?._id);
+
   const isOwnProfile = currentUser?.username === username;
+
+  const displaySubscribersCount = (isSubscriptionLoading && dynamicSubscribersCount === 0)
+    ? (channel?.subscribersCount || 0)
+    : dynamicSubscribersCount;
 
   // Conditional features queries
   const {
@@ -93,11 +184,6 @@ export const ChannelPage = () => {
     isError: continueWatchingError,
     refetch: refetchContinueWatching,
   } = useProfileContinueWatching(8, isOwnProfile && activeTab === "continue-watching");
-
-  const handleSubscribe = () => {
-    setIsSubscribed(!isSubscribed);
-    toast.success(isSubscribed ? "Unsubscribed from channel." : "Successfully subscribed to channel.");
-  };
 
   if (isLoading) {
     return <PageLoader message="Retrieving channel parameters..." />;
@@ -358,7 +444,8 @@ export const ChannelPage = () => {
                 variant={isSubscribed ? "outline" : "solid"}
                 size="sm"
                 className="rounded-full"
-                onClick={handleSubscribe}
+                onClick={() => toggleSubscription()}
+                isLoading={isSubscribing}
               >
                 {isSubscribed ? "Subscribed" : "Subscribe"}
               </Button>
@@ -366,10 +453,13 @@ export const ChannelPage = () => {
           </div>
 
           <div className="flex gap-4 mt-3 flex-wrap">
-            <div className="flex items-center gap-1 text-[11px] text-slate-400">
+            <div 
+              className="flex items-center gap-1 text-[11px] text-slate-400 cursor-pointer hover:text-brand-cyan transition-colors"
+              onClick={() => setSubscribersModalOpen(true)}
+            >
               <Users size={12} className="text-slate-500" />
               <span>
-                <strong>{formatNumber(channel.subscribersCount)}</strong> Subscribers
+                <strong>{formatNumber(displaySubscribersCount)}</strong> Subscribers
               </span>
             </div>
             <div className="flex items-center gap-1 text-[11px] text-slate-400">
@@ -403,6 +493,13 @@ export const ChannelPage = () => {
 
       {/* Tabs Content panel */}
       <div className="p-6 md:p-12">{renderTabContent()}</div>
+
+      {/* Subscriber List Modal */}
+      <SubscriberListModal 
+        isOpen={subscribersModalOpen} 
+        onClose={() => setSubscribersModalOpen(false)} 
+        channelId={channel?._id} 
+      />
     </div>
   );
 };

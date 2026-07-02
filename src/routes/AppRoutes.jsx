@@ -17,7 +17,8 @@ const HistoryPage = lazy(() => import("../pages/HistoryPage").then(module => ({ 
 const WatchLaterPage = lazy(() => import("../pages/WatchLaterPage").then(module => ({ default: module.WatchLaterPage })));
 const LikedVideosPage = lazy(() => import("../pages/LikedVideosPage").then(module => ({ default: module.LikedVideosPage })));
 const SubscriptionsPage = lazy(() => import("../pages/SubscriptionsPage").then(module => ({ default: module.SubscriptionsPage })));
-const PlaylistsPage = lazy(() => import("../pages/PlaylistsPage").then(module => ({ default: module.PlaylistsPage })));
+const SubscriptionsFeedPage = lazy(() => import("../pages/SubscriptionsFeedPage")); const PlaylistsPage = lazy(() => import("../pages/PlaylistsPage").then(module => ({ default: module.PlaylistsPage })));
+const PlaylistDetailsPage = lazy(() => import("../pages/PlaylistDetailsPage").then(module => ({ default: module.PlaylistDetailsPage })));
 const UploadVideoPage = lazy(() => import("../pages/UploadVideoPage").then(module => ({ default: module.UploadVideoPage })));
 const EditVideoPage = lazy(() => import("../pages/EditVideoPage").then(module => ({ default: module.EditVideoPage })));
 
@@ -54,7 +55,9 @@ export const AppRoutes = () => {
               <Route path="/watch-later" element={<WatchLaterPage />} />
               <Route path="/liked-videos" element={<LikedVideosPage />} />
               <Route path="/subscriptions" element={<SubscriptionsPage />} />
+              <Route path="/feed/subscriptions" element={<SubscriptionsFeedPage />} />
               <Route path="/playlists" element={<PlaylistsPage />} />
+              <Route path="/playlists/:playlistId" element={<PlaylistDetailsPage />} />
               <Route path="/upload" element={<UploadVideoPage />} />
               <Route path="/edit-video/:videoId" element={<EditVideoPage />} />
             </Route>

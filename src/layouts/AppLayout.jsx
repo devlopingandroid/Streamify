@@ -280,14 +280,14 @@ const DesktopSidebar = ({ sidebarExpanded }) => {
         </Link>
 
         <Link
-          to="/subscriptions"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/subscriptions")
+          to="/feed/subscriptions"
+          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/feed/subscriptions")
             ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
             : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
             }`}
           title="Subscriptions"
         >
-          <UserCheck size={20} className={`transition-transform duration-200 ${isActive("/subscriptions") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+          <UserCheck size={20} className={`transition-transform duration-200 ${isActive("/feed/subscriptions") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
           {sidebarExpanded && <span className="text-xs">Subscriptions</span>}
         </Link>
 
@@ -408,7 +408,7 @@ const MobileDrawer = ({ onClose, onLogout }) => {
             </Link>
 
             <Link
-              to="/subscriptions"
+              to="/feed/subscriptions"
               onClick={onClose}
               className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
             >

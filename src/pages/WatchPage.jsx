@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { useVideo, useVideos } from "../hooks/useVideos";
 import { useVideoLikes } from "../hooks/useLikes";
+import { useSubscription, useMyPlaylists, useWatchLater } from "../hooks/useUserFeatures";
+import { AddToPlaylistModal } from "../components/ui/AddToPlaylistModal";
 import { VideoPlayer } from "../components/video/VideoPlayer";
 import { VideoCard } from "../components/video/VideoCard";
 import { CommentSection } from "../components/video/CommentSection";
@@ -17,20 +20,43 @@ import {
   Share2, 
   Bookmark, 
   ChevronDown, 
-  ChevronUp 
+  ChevronUp,
+  Clock,
+  Loader2 
 } from "lucide-react";
 
 export const WatchPage = () => {
   const { videoId } = useParams();
+  const { user: currentUser } = useSelector((state) => state.auth);
 
   const [descExpanded, setDescExpanded] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isPlaylistModalOpen, setIsPlaylistModalOpen] = useState(false);
+  const { data: playlists } = useMyPlaylists();
+  const isSaved = playlists?.some((pl) =>
+    pl.videos?.some((v) => (typeof v === "string" ? v : v?._id) === videoId)
+  );
+  const { 
+    data: watchLaterVideos, 
+    toggleWatchLater, 
+    isToggling: isWatchLaterToggling, 
+    togglingVideoId 
+  } = useWatchLater();
+  const isWatchLater = watchLaterVideos?.some((v) => (v._id || v) === videoId);
+  const isWatchLaterPending = isWatchLaterToggling && (togglingVideoId === videoId);
 
   // Video Queries
   const { data: video, isLoading: videoLoading, error: videoError, refetch: refetchVideo } = useVideo(videoId);
   const { data: recommended, isLoading: recsLoading } = useVideos();
   const { data: likesInfo, toggleLike, isToggling } = useVideoLikes(videoId);
+
+  // Subscription Hook Integration
+  const { 
+    subscribed: isSubscribed, 
+    toggleSubscription, 
+    isToggling: isSubscribing 
+  } = useSubscription(video?.owner?._id);
+
+  const isOwnVideo = currentUser?._id === video?.owner?._id;
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -38,13 +64,7 @@ export const WatchPage = () => {
   };
 
   const handleSave = () => {
-    setIsSaved(!isSaved);
-    toast.success(isSaved ? "Removed from library." : "Video saved to library.");
-  };
-
-  const handleSubscribe = () => {
-    setIsSubscribed(!isSubscribed);
-    toast.success(isSubscribed ? "Unsubscribed from channel." : "Successfully subscribed to channel.");
+    setIsPlaylistModalOpen(true);
   };
 
   if (videoLoading) {
@@ -82,23 +102,26 @@ export const WatchPage = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-3 pb-6 border-b border-slate-800/60">
             {/* Owner channel details */}
             <div className="flex items-center gap-4">
-              <Link to="/landing">
+              <Link to={`/c/${video.owner.username}`}>
                 <Avatar src={video.owner.avatar} name={video.owner.fullname} size="lg" />
               </Link>
               <div className="flex flex-col">
-                <Link to="/landing" className="font-semibold text-slate-200 hover:text-brand-cyan transition-colors text-xs">
+                <Link to={`/c/${video.owner.username}`} className="font-semibold text-slate-200 hover:text-brand-cyan transition-colors text-xs">
                   {video.owner.fullname}
                 </Link>
                 <span className="text-[10px] text-slate-500 mt-0.5">@{video.owner.username}</span>
               </div>
-              <Button 
-                variant={isSubscribed ? "outline" : "solid"} 
-                size="sm" 
-                className="ml-2 rounded-full"
-                onClick={handleSubscribe}
-              >
-                {isSubscribed ? "Subscribed" : "Subscribe"}
-              </Button>
+              {!isOwnVideo && (
+                <Button 
+                  variant={isSubscribed ? "outline" : "solid"} 
+                  size="sm" 
+                  className="ml-2 rounded-full"
+                  onClick={() => toggleSubscription()}
+                  isLoading={isSubscribing}
+                >
+                  {isSubscribed ? "Subscribed" : "Subscribe"}
+                </Button>
+              )}
             </div>
 
             {/* Utility action buttons */}
@@ -123,6 +146,20 @@ export const WatchPage = () => {
               >
                 <Share2 size={14} />
                 <span className="text-[11px]">Share</span>
+              </Button>
+              <Button 
+                variant={isWatchLater ? "solid" : "outline"} 
+                size="sm" 
+                className="gap-1.5 rounded-full"
+                onClick={() => toggleWatchLater({ videoId, video })}
+                disabled={isWatchLaterPending}
+              >
+                {isWatchLaterPending ? (
+                  <Loader2 size={14} className="animate-spin text-cyan-400" />
+                ) : (
+                  <Clock size={14} className={isWatchLater ? "text-cyan-400" : ""} />
+                )}
+                <span className="text-[11px] font-semibold">Watch Later</span>
               </Button>
               <Button 
                 variant={isSaved ? "solid" : "outline"} 
@@ -179,6 +216,12 @@ export const WatchPage = () => {
         </aside>
 
       </div>
+
+      <AddToPlaylistModal 
+        isOpen={isPlaylistModalOpen} 
+        onClose={() => setIsPlaylistModalOpen(false)} 
+        videoId={videoId} 
+      />
     </div>
   );
 };
