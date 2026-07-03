@@ -118,7 +118,7 @@ const SubscriberListModal = ({ isOpen, onClose, channelId }) => {
         </div>
       ) : (
         <div className="flex flex-col gap-4 max-h-[50vh] overflow-y-auto pr-1">
-          {subscribers.map((subscriber) => (
+          {(subscribers || []).map((subscriber) => (
             <SubscriberListItem key={subscriber._id} subscriber={subscriber} />
           ))}
         </div>

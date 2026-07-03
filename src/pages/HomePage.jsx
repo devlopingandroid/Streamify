@@ -1,5 +1,6 @@
 import React from "react";
 import { useVideos, useTrendingVideos } from "../hooks/useVideos";
+import { useContinueWatching } from "../hooks/useUserFeatures";
 import { VideoGrid } from "../components/video/VideoGrid";
 import { VideoCard } from "../components/video/VideoCard";
 import { VideoCardSkeleton } from "../components/video/VideoCardSkeleton";
@@ -20,6 +21,8 @@ export const HomePage = () => {
     error: trendingError,
     refetch: refetchTrending,
   } = useTrendingVideos();
+
+  const { data: continueWatching } = useContinueWatching();
 
   const handleRetryAll = () => {
     refetchRecommended();
@@ -45,6 +48,18 @@ export const HomePage = () => {
 
   return (
     <div className="p-6 md:p-8 flex flex-col gap-10 text-slate-100 select-none">
+
+      {/* Continue Watching Section */}
+      {continueWatching && continueWatching.length > 0 && (
+        <section>
+          <h2 className="text-sm font-semibold text-slate-300 mb-6 uppercase tracking-wider">Continue Watching</h2>
+          <VideoGrid>
+            {continueWatching.map((video) => (
+              <VideoCard key={`cw-${video._id}`} video={video} />
+            ))}
+          </VideoGrid>
+        </section>
+      )}
 
       {/* Recommended Section */}
       <section>

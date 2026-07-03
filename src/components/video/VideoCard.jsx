@@ -128,28 +128,30 @@ export const VideoCard = ({ video, layout = "grid" }) => {
         </div>
       )}
 
-      <div className={`absolute top-2 z-20 transition-opacity duration-150 ${
-        isOwner ? "right-10" : "right-2"
-      } ${isWatchLater ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleWatchLater({ videoId: video._id, video });
-          }}
-          disabled={isWatchLaterPending}
-          className="w-7 h-7 rounded-full bg-slate-950/70 hover:bg-slate-900/95 border border-slate-800/50 flex items-center justify-center text-slate-350 hover:text-brand-cyan transition-all shadow cursor-pointer focus:outline-none disabled:opacity-50"
-          aria-label="Toggle Watch Later"
-          title={isWatchLater ? "Remove from Watch Later" : "Watch Later"}
-        >
-          {isWatchLaterPending ? (
-            <Loader2 size={12} className="animate-spin text-cyan-400" />
-          ) : (
-            <Bookmark size={12} className={isWatchLater ? "fill-current text-cyan-400" : ""} />
-          )}
-        </button>
-      </div>
+      {!isOwner && (
+        <div className={`absolute top-2 right-2 z-20 transition-opacity duration-150 ${
+          isWatchLater ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+        }`}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              toggleWatchLater({ videoId: video._id, video });
+            }}
+            disabled={isWatchLaterPending}
+            className="w-7 h-7 rounded-full bg-slate-950/70 hover:bg-slate-900/95 border border-slate-800/50 flex items-center justify-center text-slate-350 hover:text-brand-cyan transition-all shadow cursor-pointer focus:outline-none disabled:opacity-50"
+            aria-label="Toggle Watch Later"
+            title={isWatchLater ? "Remove from Watch Later" : "Watch Later"}
+          >
+            {isWatchLaterPending ? (
+              <Loader2 size={12} className="animate-spin text-cyan-400" />
+            ) : (
+              <Bookmark size={12} className={isWatchLater ? "fill-current text-cyan-400" : ""} />
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Thumbnail Trigger */}
       <Link 
@@ -168,7 +170,7 @@ export const VideoCard = ({ video, layout = "grid" }) => {
       <div className={`flex gap-3 p-3 ${isList ? "sm:p-0 flex-grow" : ""}`}>
         {!isList && (
           <Link to={`/landing`} className="flex-shrink-0">
-            <Avatar src={video.owner?.avatar || video.owner?.avatar} name={video.owner?.fullname || "User"} size="sm" />
+            <Avatar src={video.owner?.avatar} name={video.owner?.fullname || "User"} size="sm" />
           </Link>
         )}
 

@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useVideo, useVideos } from "../hooks/useVideos";
 import { useVideoLikes } from "../hooks/useLikes";
-import { useSubscription, useMyPlaylists, useWatchLater } from "../hooks/useUserFeatures";
+import { useSubscription, useMyPlaylists, useWatchLater, useResumePosition } from "../hooks/useUserFeatures";
 import { AddToPlaylistModal } from "../components/ui/AddToPlaylistModal";
 import { VideoPlayer } from "../components/video/VideoPlayer";
 import { VideoCard } from "../components/video/VideoCard";
@@ -43,6 +43,10 @@ export const WatchPage = () => {
   } = useWatchLater();
   const isWatchLater = watchLaterVideos?.some((v) => (v._id || v) === videoId);
   const isWatchLaterPending = isWatchLaterToggling && (togglingVideoId === videoId);
+
+  const { data: resumeData } = useResumePosition(videoId);
+  const shouldResume = resumeData && resumeData.progress > 0 && !resumeData.completed;
+  const resumePosition = shouldResume ? resumeData.progress : 0;
 
   // Video Queries
   const { data: video, isLoading: videoLoading, error: videoError, refetch: refetchVideo } = useVideo(videoId);
@@ -92,7 +96,7 @@ export const WatchPage = () => {
         
         {/* Left Side: Main Player and Metadata Details */}
         <div className="flex flex-col">
-          <VideoPlayer src={video.videoFile} poster={video.thumbnail} />
+          <VideoPlayer src={video.videoFile} poster={video.thumbnail} videoId={videoId} resumePosition={resumePosition} />
           
           <h1 className="text-lg md:text-xl font-bold text-slate-100 mt-4 leading-relaxed">
             {video.title}

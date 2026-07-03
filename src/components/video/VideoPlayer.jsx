@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { 
   Play, 
   Pause, 
@@ -9,8 +9,10 @@ import {
   Loader2
 } from "lucide-react";
 import { formatDuration } from "../../utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { recordWatchProgressApi } from "../../services/history.api";
 
-export const VideoPlayer = ({ src, poster }) => {
+export const VideoPlayer = ({ src, poster, videoId, resumePosition }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -24,6 +26,31 @@ export const VideoPlayer = ({ src, poster }) => {
   const videoRef = useRef(null);
   const playerRef = useRef(null);
   const controlsTimeoutRef = useRef(null);
+
+  const lastRecordedTimeRef = useRef(-1);
+  const resumeAppliedRef = useRef(false);
+  const intervalIdRef = useRef(null);
+
+  const queryClient = useQueryClient();
+
+  const saveProgress = useCallback((force = false) => {
+    if (!videoRef.current || !videoId) return;
+    const currentProgress = Math.floor(videoRef.current.currentTime);
+    const totalDuration = Math.floor(videoRef.current.duration);
+
+    if (totalDuration <= 0) return;
+
+    if (!force && lastRecordedTimeRef.current === currentProgress) return;
+
+    lastRecordedTimeRef.current = currentProgress;
+    recordWatchProgressApi(videoId, currentProgress, totalDuration)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ["history"] });
+        queryClient.invalidateQueries({ queryKey: ["continueWatching"] });
+        queryClient.invalidateQueries({ queryKey: ["resumePosition", videoId] });
+      })
+      .catch(() => {});
+  }, [videoId, queryClient]);
 
   // Auto-hide controls overlay on cursor inactivity
   const handleMouseMove = () => {
@@ -49,6 +76,49 @@ export const VideoPlayer = ({ src, poster }) => {
     }
     setIsPlaying(!isPlaying);
   };
+
+  // Reset seek and track states when videoId changes
+  useEffect(() => {
+    resumeAppliedRef.current = false;
+    lastRecordedTimeRef.current = -1;
+  }, [videoId]);
+
+  // Periodically record progress every 10 seconds while playing
+  useEffect(() => {
+    if (isPlaying) {
+      intervalIdRef.current = setInterval(() => {
+        saveProgress(false);
+      }, 10000);
+    }
+
+    return () => {
+      if (intervalIdRef.current) {
+        clearInterval(intervalIdRef.current);
+        intervalIdRef.current = null;
+      }
+    };
+  }, [isPlaying, videoId, saveProgress]);
+
+  // Record progress on component cleanup (leaving page) and page unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveProgress(true);
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      saveProgress(true);
+    };
+  }, [videoId, saveProgress]);
+
+  // Seek to resumePosition once duration and resumePosition are available
+  useEffect(() => {
+    if (videoRef.current && duration > 0 && resumePosition > 0 && !resumeAppliedRef.current) {
+      videoRef.current.currentTime = resumePosition;
+      setCurrentTime(resumePosition);
+      resumeAppliedRef.current = true;
+    }
+  }, [duration, resumePosition]);
 
   const handleTimeUpdate = () => {
     if (videoRef.current) {
@@ -179,6 +249,8 @@ export const VideoPlayer = ({ src, poster }) => {
         onLoadedMetadata={handleLoadedMetadata}
         onWaiting={() => setIsWaiting(true)}
         onPlaying={() => setIsWaiting(false)}
+        onPause={() => saveProgress(true)}
+        onEnded={() => saveProgress(true)}
         className="w-full h-full object-contain cursor-pointer"
       />
 

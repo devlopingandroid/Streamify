@@ -4,7 +4,14 @@ import {
   useQueryClient,
   useInfiniteQuery
 } from "@tanstack/react-query"; import { getSearchResultsApi } from "../services/search.api";
-import { getWatchHistoryApi, clearWatchHistoryApi } from "../services/history.api";
+import {
+  getWatchHistoryApi,
+  clearWatchHistoryApi,
+  deleteHistoryItemApi,
+  recordWatchProgressApi,
+  getResumePositionApi,
+  getContinueWatchingApi
+} from "../services/history.api";
 import {
   getPlaylistsApi,
   createPlaylistApi,
@@ -71,11 +78,29 @@ export const useHistory = () => {
     queryKey: ["history"],
     queryFn: async () => {
       try {
-        const res = await getWatchHistoryApi();
-        return res?.data || [];
+        const res = await getWatchHistoryApi(1, 20);
+        const sessions = res?.data?.sessions || [];
+        return sessions
+          .filter((s) => s && s.video)
+          .map((s) => ({
+            ...s.video,
+            watchSessionId: s._id,
+            progress: s.progress,
+            duration: s.duration,
+            completed: s.completed,
+            lastWatchedAt: s.lastWatchedAt
+          }));
       } catch {
         return [];
       }
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteHistoryItemApi,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["history"] });
+      queryClient.invalidateQueries({ queryKey: ["continueWatching"] });
     },
   });
 
@@ -84,10 +109,72 @@ export const useHistory = () => {
     onSuccess: () => {
       queryClient.setQueryData(["history"], []);
       queryClient.invalidateQueries({ queryKey: ["history"] });
+      queryClient.invalidateQueries({ queryKey: ["continueWatching"] });
     },
   });
 
-  return { ...query, clearHistory: clearMutation.mutate, isClearing: clearMutation.isPending };
+  return { 
+    ...query, 
+    deleteHistoryItem: deleteMutation.mutate,
+    isDeleting: deleteMutation.isPending,
+    clearHistory: clearMutation.mutate, 
+    isClearing: clearMutation.isPending 
+  };
+};
+
+export const useContinueWatching = (limit = 10) => {
+  return useQuery({
+    queryKey: ["continueWatching", limit],
+    queryFn: async () => {
+      try {
+        const res = await getContinueWatchingApi(limit);
+        const sessions = res?.data || [];
+        return sessions
+          .filter((s) => s && s.video)
+          .map((s) => ({
+            ...s.video,
+            progress: s.progress,
+            duration: s.duration,
+            completed: s.completed,
+            lastWatchedAt: s.lastWatchedAt
+          }));
+      } catch {
+        return [];
+      }
+    },
+  });
+};
+
+export const useResumePosition = (videoId) => {
+  return useQuery({
+    queryKey: ["resumePosition", videoId],
+    queryFn: async () => {
+      if (!videoId) return { progress: 0, duration: 0 };
+      try {
+        const res = await getResumePositionApi(videoId);
+        return res?.data || { progress: 0, duration: 0 };
+      } catch {
+        return { progress: 0, duration: 0 };
+      }
+    },
+    enabled: !!videoId,
+    staleTime: 0,
+  });
+};
+
+export const useRecordWatchSession = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ videoId, progress, duration }) => {
+      return recordWatchProgressApi(videoId, progress, duration);
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["history"] });
+      queryClient.invalidateQueries({ queryKey: ["continueWatching"] });
+      queryClient.invalidateQueries({ queryKey: ["resumePosition", variables.videoId] });
+    },
+  });
 };
 
 /**
@@ -101,9 +188,15 @@ export const useWatchLater = () => {
     queryFn: async () => {
       try {
         const res = await getWatchLaterApi();
-        return Array.isArray(res?.data) 
+        const items = Array.isArray(res?.data) 
           ? res.data 
           : (res?.data?.data || []);
+        return items
+          .filter((item) => item && item.video)
+          .map((item) => ({
+            ...item.video,
+            watchLaterId: item._id,
+          }));
       } catch {
         return [];
       }
@@ -345,7 +438,10 @@ export const useChannelSubscribers = (channelId) => {
     queryFn: async () => {
       if (!channelId) return [];
       const response = await getChannelSubscribersApi(channelId);
-      return response?.data || [];
+      console.log("Raw subscribers API response:", response);
+      return Array.isArray(response?.data)
+        ? response.data
+        : (response?.data?.data || []);
     },
     enabled: !!channelId,
   });

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useHistory } from "../hooks/useUserFeatures";
-import { useVideos } from "../hooks/useVideos";
 import { VideoGrid } from "../components/video/VideoGrid";
 import { VideoCard } from "../components/video/VideoCard";
 import { VideoCardSkeleton } from "../components/video/VideoCardSkeleton";
@@ -13,17 +12,13 @@ import { Trash2, AlertTriangle, Clock } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 export const HistoryPage = () => {
-  const { data: historyVideos, isLoading, error, refetch, clearHistory, isClearing } = useHistory();
-  const { data: fallbackVideos } = useVideos();
+  const { data: historyVideos, isLoading, error, refetch, clearHistory, isClearing, deleteHistoryItem } = useHistory();
 
   const [layout, setLayout] = useState("list");
   const [sortBy, setSortBy] = useState("recent");
   const [showClearDialog, setShowClearDialog] = useState(false);
 
-  // If backend database watch history is empty, populate with fallback videos to showcase grouping
-  const displayVideos = historyVideos && historyVideos.length > 0 
-    ? historyVideos 
-    : (fallbackVideos || []);
+  const displayVideos = historyVideos || [];
 
   const handleClearHistory = () => {
     clearHistory(null, {
@@ -38,8 +33,12 @@ export const HistoryPage = () => {
     });
   };
 
-  const handleRemoveSingle = (_videoId) => {
-    toast.success("Video removed from watch history.");
+  const handleRemoveSingle = (videoId) => {
+    deleteHistoryItem(videoId, {
+      onSuccess: () => {
+        toast.success("Video removed from watch history.");
+      },
+    });
   };
 
   if (isLoading) {
