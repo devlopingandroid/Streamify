@@ -5,6 +5,7 @@ import { useLogout } from "../hooks/useAuth";
 import { toggleSidebar } from "../store/uiSlice";
 import { useDebounce } from "../hooks/useDebounce";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
+import { NotificationBell } from "../components/notification/NotificationBell";
 import { AppLogo } from "../components/ui/AppLogo";
 import { Avatar } from "../components/ui/Avatar";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,7 +16,6 @@ import {
   LogOut,
   Search,
   ChevronDown,
-  Bell,
   X,
   User,
   Settings,
@@ -24,7 +24,8 @@ import {
   ThumbsUp,
   UserCheck,
   PlaySquare,
-  Upload
+  Upload,
+  Flame
 } from "lucide-react";
 
 export const AppLayout = () => {
@@ -170,12 +171,7 @@ const TopNavbar = ({
       <div className="flex items-center gap-2">
         <ThemeToggle />
 
-        <button
-          className="w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-800 transition-colors cursor-pointer"
-          aria-label="Notifications alerts"
-        >
-          <Bell size={18} />
-        </button>
+        <NotificationBell />
 
         <div className="relative">
           <button
@@ -277,6 +273,18 @@ const DesktopSidebar = ({ sidebarExpanded }) => {
         >
           <Home size={20} className={`transition-transform duration-200 ${isActive("/") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
           {sidebarExpanded && <span className="text-xs">Home Feed</span>}
+        </Link>
+
+        <Link
+          to="/trending"
+          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/trending")
+            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
+            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+            }`}
+          title="Trending"
+        >
+          <Flame size={20} className={`transition-transform duration-200 ${isActive("/trending") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+          {sidebarExpanded && <span className="text-xs">Trending</span>}
         </Link>
 
         <Link
@@ -405,6 +413,15 @@ const MobileDrawer = ({ onClose, onLogout }) => {
             >
               <Home size={20} />
               <span className="text-xs font-semibold">Home Feed</span>
+            </Link>
+
+            <Link
+              to="/trending"
+              onClick={onClose}
+              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              <Flame size={20} />
+              <span className="text-xs font-semibold">Trending</span>
             </Link>
 
             <Link

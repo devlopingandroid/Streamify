@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useVideo, useVideos } from "../hooks/useVideos";
+import { useVideo } from "../hooks/useVideos";
 import { useVideoLikes } from "../hooks/useLikes";
 import { useSubscription, useMyPlaylists, useWatchLater, useResumePosition } from "../hooks/useUserFeatures";
 import { AddToPlaylistModal } from "../components/ui/AddToPlaylistModal";
 import { VideoPlayer } from "../components/video/VideoPlayer";
-import { VideoCard } from "../components/video/VideoCard";
+import { useSimilarVideos } from "../hooks/useRecommendations";
+import { RecommendationSidebar } from "../components/recommendation/RecommendationSidebar";
 import { CommentSection } from "../components/video/CommentSection";
-import { VideoCardSkeleton } from "../components/video/VideoCardSkeleton";
 import { Avatar } from "../components/ui/Avatar";
 import { Button } from "../components/ui/Button";
 import { ErrorState } from "../components/ui/ErrorState";
@@ -50,7 +50,12 @@ export const WatchPage = () => {
 
   // Video Queries
   const { data: video, isLoading: videoLoading, error: videoError, refetch: refetchVideo } = useVideo(videoId);
-  const { data: recommended, isLoading: recsLoading } = useVideos();
+  const { 
+    data: similarVideosData, 
+    isLoading: similarLoading, 
+    isError: similarError, 
+    refetch: refetchSimilar 
+  } = useSimilarVideos(videoId, 10);
   const { data: likesInfo, toggleLike, isToggling } = useVideoLikes(videoId);
 
   // Subscription Hook Integration
@@ -88,7 +93,8 @@ export const WatchPage = () => {
   }
 
   // Filter out the currently playing video from recommendations
-  const alternativeSuggestions = recommended?.filter((v) => v._id !== videoId) || [];
+  const similarVideosList = similarVideosData?.docs || similarVideosData?.videos || (Array.isArray(similarVideosData) ? similarVideosData : []);
+  const alternativeSuggestions = similarVideosList?.filter((v) => v._id !== videoId) || [];
 
   return (
     <div className="p-6 md:p-8 max-w-[1440px] mx-auto animate-fade-in text-slate-100 select-none">
@@ -204,19 +210,13 @@ export const WatchPage = () => {
         {/* Right Side: Suggestions List */}
         <aside className="flex flex-col gap-4">
           <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Up Next</h2>
-          <div className="flex flex-col gap-4">
-            {recsLoading ? (
-              Array.from({ length: 3 }).map((_, idx) => (
-                <VideoCardSkeleton key={`rec-side-${idx}`} layout="list" />
-              ))
-            ) : alternativeSuggestions.length === 0 ? (
-              <span className="text-2xs text-slate-500 italic">No alternative suggestions.</span>
-            ) : (
-              alternativeSuggestions.map((v) => (
-                <VideoCard key={v._id} video={v} layout="list" />
-              ))
-            )}
-          </div>
+          <RecommendationSidebar
+            items={alternativeSuggestions}
+            loading={similarLoading}
+            error={similarError ? similarError : null}
+            onRetry={refetchSimilar}
+            skeletonCount={4}
+          />
         </aside>
 
       </div>

@@ -18,9 +18,11 @@ const WatchLaterPage = lazy(() => import("../pages/WatchLaterPage").then(module 
 const LikedVideosPage = lazy(() => import("../pages/LikedVideosPage").then(module => ({ default: module.LikedVideosPage })));
 const SubscriptionsPage = lazy(() => import("../pages/SubscriptionsPage").then(module => ({ default: module.SubscriptionsPage })));
 const SubscriptionsFeedPage = lazy(() => import("../pages/SubscriptionsFeedPage")); const PlaylistsPage = lazy(() => import("../pages/PlaylistsPage").then(module => ({ default: module.PlaylistsPage })));
+const TrendingPage = lazy(() => import("../pages/TrendingPage").then(module => ({ default: module.TrendingPage })));
 const PlaylistDetailsPage = lazy(() => import("../pages/PlaylistDetailsPage").then(module => ({ default: module.PlaylistDetailsPage })));
 const UploadVideoPage = lazy(() => import("../pages/UploadVideoPage").then(module => ({ default: module.UploadVideoPage })));
 const EditVideoPage = lazy(() => import("../pages/EditVideoPage").then(module => ({ default: module.EditVideoPage })));
+const NotificationsPage = lazy(() => import("../pages/NotificationsPage").then(module => ({ default: module.NotificationsPage })));
 
 // Error Pages
 const NotFoundPage = lazy(() => import("../pages/error/NotFoundPage").then(module => ({ default: module.NotFoundPage })));
@@ -56,10 +58,13 @@ export const AppRoutes = () => {
               <Route path="/liked-videos" element={<LikedVideosPage />} />
               <Route path="/subscriptions" element={<SubscriptionsPage />} />
               <Route path="/feed/subscriptions" element={<SubscriptionsFeedPage />} />
+              <Route path="/subscriptions/feed" element={<SubscriptionsFeedPage />} />
+              <Route path="/trending" element={<TrendingPage />} />
               <Route path="/playlists" element={<PlaylistsPage />} />
               <Route path="/playlists/:playlistId" element={<PlaylistDetailsPage />} />
               <Route path="/upload" element={<UploadVideoPage />} />
               <Route path="/edit-video/:videoId" element={<EditVideoPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
             </Route>
 
           </Route>
