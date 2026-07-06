@@ -25,7 +25,8 @@ import {
   UserCheck,
   PlaySquare,
   Upload,
-  Flame
+  Flame,
+  BarChart3
 } from "lucide-react";
 
 export const AppLayout = () => {
@@ -203,6 +204,16 @@ const TopNavbar = ({
                 </Link>
 
                 <Link
+                  to="/analytics"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 transition-colors"
+                  onClick={onCloseDropdown}
+                >
+                  <BarChart3 size={15} />
+                  <span>Creator Analytics</span>
+                </Link>
+
+
+                <Link
                   to={`/c/${user?.username}`}
                   className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 transition-colors"
                   onClick={onCloseDropdown}
@@ -274,6 +285,19 @@ const DesktopSidebar = ({ sidebarExpanded }) => {
           <Home size={20} className={`transition-transform duration-200 ${isActive("/") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
           {sidebarExpanded && <span className="text-xs">Home Feed</span>}
         </Link>
+
+        <Link
+          to="/analytics"
+          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/analytics")
+            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
+            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
+            }`}
+          title="Creator Analytics"
+        >
+          <BarChart3 size={20} className={`transition-transform duration-200 ${isActive("/analytics") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+          {sidebarExpanded && <span className="text-xs">Creator Analytics</span>}
+        </Link>
+
 
         <Link
           to="/trending"
@@ -414,6 +438,16 @@ const MobileDrawer = ({ onClose, onLogout }) => {
               <Home size={20} />
               <span className="text-xs font-semibold">Home Feed</span>
             </Link>
+
+            <Link
+              to="/analytics"
+              onClick={onClose}
+              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
+            >
+              <BarChart3 size={20} />
+              <span className="text-xs font-semibold">Creator Analytics</span>
+            </Link>
+
 
             <Link
               to="/trending"

@@ -23,6 +23,8 @@ const PlaylistDetailsPage = lazy(() => import("../pages/PlaylistDetailsPage").th
 const UploadVideoPage = lazy(() => import("../pages/UploadVideoPage").then(module => ({ default: module.UploadVideoPage })));
 const EditVideoPage = lazy(() => import("../pages/EditVideoPage").then(module => ({ default: module.EditVideoPage })));
 const NotificationsPage = lazy(() => import("../pages/NotificationsPage").then(module => ({ default: module.NotificationsPage })));
+const AnalyticsPage = lazy(() => import("../pages/AnalyticsPage").then(module => ({ default: module.AnalyticsPage })));
+
 
 // Error Pages
 const NotFoundPage = lazy(() => import("../pages/error/NotFoundPage").then(module => ({ default: module.NotFoundPage })));
@@ -65,6 +67,8 @@ export const AppRoutes = () => {
               <Route path="/upload" element={<UploadVideoPage />} />
               <Route path="/edit-video/:videoId" element={<EditVideoPage />} />
               <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+
             </Route>
 
           </Route>
