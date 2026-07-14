@@ -2,7 +2,7 @@ import axios from "axios";
 import { store } from "../store";
 import { clearAuth } from "../store/authSlice";
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://projectbackend-production-eaca.up.railway.app";
 
 /**
  * Normalized API error parser.
@@ -30,7 +30,7 @@ export const parseError = (error) => {
 export const apiClient = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
-  timeout: 15000, // 15s timeout check
+  timeout: 200000, // 200 seconds timeout
   headers: {
     "Content-Type": "application/json",
   },
@@ -94,7 +94,7 @@ apiClient.interceptors.response.use(
       }
     }
 
-    return Promise.reject(parseError(error));
+    return Promise.reject(parseError(error));//promise
   }
 );
 
