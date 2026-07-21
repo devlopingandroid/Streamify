@@ -1,10 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const hasSessionHint = typeof window !== "undefined" && localStorage.getItem("streamify_has_session") === "true";
+
 const initialState = {
   user: null,
   isAuthenticated: false,
-  isLoading: true,
-  sessionChecked: false,
+  isLoading: hasSessionHint,
+  sessionChecked: !hasSessionHint,
 };
 
 const authSlice = createSlice({

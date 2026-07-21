@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { login, logout, clearAuth } from "../store/authSlice";
 import { loginApi, registerApi, logoutApi } from "../services/auth.api";
 import { getCurrentUserApi } from "../services/user.api";
@@ -9,6 +9,8 @@ import { getCurrentUserApi } from "../services/user.api";
  */
 export const useCurrentUser = (options = {}) => {
   const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const hasSessionHint = typeof window !== "undefined" && localStorage.getItem("streamify_has_session") === "true";
 
   return useQuery({
     queryKey: ["currentUser"],
@@ -17,11 +19,13 @@ export const useCurrentUser = (options = {}) => {
         const response = await getCurrentUserApi();
         const user = response?.data;
         dispatch(login(user));
+        localStorage.setItem("streamify_has_session", "true");
         return user;
       } catch (err) {
         // 401 after logout is expected
         if (err.status === 401 || err.originalError?.response?.status === 401) {
           dispatch(clearAuth());
+          localStorage.setItem("streamify_has_session", "false");
           return null;
         }
 
@@ -30,6 +34,7 @@ export const useCurrentUser = (options = {}) => {
     },
     retry: false, // Do not spam retries on unauthenticated sessions
     staleTime: 1000 * 60 * 15, // 15 mins stale time
+    enabled: hasSessionHint || isAuthenticated,
     ...options,
   });
 };
@@ -45,9 +50,9 @@ export const useLogin = () => {
     mutationFn: loginApi,
     onSuccess: (data) => {
       const user = data?.data?.user;
+      localStorage.setItem("streamify_has_session", "true");
       dispatch(login(user));
       queryClient.setQueryData(["currentUser"], user);
-      queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },
   });
 };
@@ -71,12 +76,14 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: logoutApi,
     onSuccess: () => {
+      localStorage.setItem("streamify_has_session", "false");
       dispatch(logout());
       queryClient.setQueryData(["currentUser"], null);
       queryClient.clear(); // Clear all server states cache
     },
     onError: () => {
       // Clean local session state even if network call fails
+      localStorage.setItem("streamify_has_session", "false");
       dispatch(logout());
       queryClient.clear();
     },

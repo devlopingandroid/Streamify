@@ -64,8 +64,14 @@ apiClient.interceptors.response.use(
 
     // Intercept 401 Unauthorized status and run refresh token flow
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      if (originalRequest.url === "/users/refresh-token") {
+      const hasSession = typeof window !== "undefined" && localStorage.getItem("streamify_has_session") === "true";
+
+      // Do not attempt refresh if no session is active or we are already calling refresh-token
+      if (!hasSession || originalRequest.url === "/users/refresh-token") {
         store.dispatch(clearAuth());
+        if (typeof window !== "undefined") {
+          localStorage.setItem("streamify_has_session", "false");
+        }
         return Promise.reject(parseError(error));
       }
 
@@ -88,9 +94,13 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         isRefreshing = false;
-        processQueue(refreshError);
+        const parsed = parseError(refreshError);
+        processQueue(parsed);
         store.dispatch(clearAuth());
-        return Promise.reject(parseError(refreshError));
+        if (typeof window !== "undefined") {
+          localStorage.setItem("streamify_has_session", "false");
+        }
+        return Promise.reject(parsed);
       }
     }
 

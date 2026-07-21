@@ -35,10 +35,13 @@ export const LoginForm = () => {
   const onSubmit = async (data) => {
     const isEmail = data.identifier.includes("@");
     const requestBody = {
-      email: isEmail ? data.identifier : undefined,
-      username: !isEmail ? data.identifier : undefined,
       password: data.password,
     };
+    if (isEmail) {
+      requestBody.email = data.identifier;
+    } else {
+      requestBody.username = data.identifier;
+    }
 
     loginMutation.mutate(requestBody, {
       onSuccess: () => {

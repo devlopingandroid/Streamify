@@ -6,7 +6,8 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: (failureCount, error) => {
-        if (error?.response?.status === 401 || error?.response?.status === 400 || error?.response?.status === 404) {
+        const status = error?.status || error?.originalError?.response?.status;
+        if (status === 401 || status === 403 || status === 400 || status === 404) {
           return false;
         }
         return failureCount < 3;
