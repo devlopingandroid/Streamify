@@ -36,7 +36,7 @@ export const Modal = ({
     const focusableElements = modalElement.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
     );
-    
+
     if (focusableElements.length === 0) return;
 
     const firstElement = focusableElements[0];
@@ -72,20 +72,20 @@ export const Modal = ({
   return (
     <div className="fixed inset-0 flex items-center justify-center z-[2000] p-4" role="dialog" aria-modal="true">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity duration-150" 
-        onClick={onClose} 
+      <div
+        className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity duration-150"
+        onClick={onClose}
       />
-      
+
       {/* Dialog card wrapper */}
-      <div 
+      <div
         className="w-full max-w-lg rounded-xl glassmorphism shadow-2xl z-[2001] relative overflow-hidden animate-fade-in"
         ref={modalRef}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800">
           <h2 className="text-lg font-semibold text-slate-100">{title}</h2>
-          <button 
-            onClick={onClose} 
+          <button
+            onClick={onClose}
             className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition-colors duration-150 cursor-pointer"
             aria-label="Close dialog modal"
           >

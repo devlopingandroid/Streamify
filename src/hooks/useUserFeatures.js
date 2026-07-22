@@ -50,17 +50,19 @@ const MOCK_PLAYLISTS = [
   },
 ];
 
-/**
- * Hook to execute search results.
- */
 export const useSearch = (query = "") => {
   return useQuery({
     queryKey: ["search", query],
     queryFn: async () => {
       try {
+        console.log(`[Search Hook Debug] Sending API request for query: "${query}"`);
         const res = await getSearchResultsApi(query);
-        return res?.data || [];
-      } catch {
+        console.log("[Search Hook Debug] API response received:", res);
+        const videos = res?.data?.docs || [];
+        console.log("[Search Hook Debug] Parsed videos array:", videos);
+        return videos;
+      } catch (err) {
+        console.error("[Search Hook Debug] API request failed:", err);
         return [];
       }
     },

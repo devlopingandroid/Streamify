@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Link, Outlet, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useLogout } from "../hooks/useAuth";
 import { toggleSidebar } from "../store/uiSlice";
@@ -26,7 +26,8 @@ import {
   PlaySquare,
   Upload,
   Flame,
-  BarChart3
+  BarChart3,
+  Plus
 } from "lucide-react";
 
 export const AppLayout = () => {
@@ -50,7 +51,7 @@ export const AppLayout = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-dark-base text-slate-100 relative">
+    <div className="flex flex-col min-h-screen bg-[#F8FAFC] text-slate-800 relative">
       {/* Top Navbar */}
       <TopNavbar
         user={user}
@@ -63,7 +64,7 @@ export const AppLayout = () => {
       />
 
       {/* Main Body */}
-      <div className="flex flex-grow mt-16 relative">
+      <div className="flex flex-grow relative bg-[#F8FAFC]" style={{ marginTop: "72px" }}>
         {/* Collapsible Sidebar for Desktop */}
         <DesktopSidebar sidebarExpanded={sidebarExpanded} />
 
@@ -79,19 +80,21 @@ export const AppLayout = () => {
 
         {/* Content Panel */}
         <main
-          className={`flex-grow min-h-[calc(100vh-64px)] transition-all duration-300 ${sidebarExpanded ? "pl-60 max-[1024px]:pl-20 max-[768px]:pl-0" : "pl-20 max-[768px]:pl-0"
-            }`}
+          className="flex-grow min-h-[calc(100vh-72px)] bg-[#F8FAFC] p-6 md:p-8 transition-all duration-300 max-[768px]:!ml-0"
+          style={{ marginLeft: sidebarExpanded ? "256px" : "80px" }}
         >
-          {/* Framer motion page transition wrapper */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="w-full"
-          >
-            <Outlet />
-          </motion.div>
+          <div className="w-full max-w-[1400px] mx-auto">
+            {/* Framer motion page transition wrapper */}
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="w-full light-content"
+            >
+              <Outlet />
+            </motion.div>
+          </div>
         </main>
       </div>
     </div>
@@ -110,23 +113,38 @@ const TopNavbar = ({
   onCloseDropdown,
   onLogout,
 }) => {
-  const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const urlQuery = searchParams.get("q") || "";
+
+  const [searchValue, setSearchValue] = useState(urlQuery);
   const debouncedSearch = useDebounce(searchValue, 600);
 
   useEffect(() => {
+    setSearchValue(urlQuery);
+  }, [urlQuery]);
+
+  useEffect(() => {
     if (debouncedSearch.trim()) {
-      // API placeholder simulation for Task 8
       // console.log("Simulating search trigger: ", debouncedSearch);
     }
   }, [debouncedSearch]);
 
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    const trimmedQuery = searchValue.trim();
+    if (trimmedQuery) {
+      navigate(`/search?q=${encodeURIComponent(trimmedQuery)}`);
+    }
+  };
+
   return (
-    <header className="flex h-16 items-center justify-between px-6 border-b border-slate-800/60 fixed top-0 left-0 right-0 z-[1000] bg-dark-base/80 backdrop-blur-md">
+    <header className="flex h-[72px] items-center justify-between px-6 fixed top-0 left-0 right-0 z-[1000] bg-white border-b border-[#E2E8F0]">
       <div className="flex items-center gap-4">
         {/* Mobile menu trigger */}
         <button
           onClick={onOpenMobile}
-          className="md:hidden w-10 h-10 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-800 transition-colors cursor-pointer"
+          className="md:hidden w-10 h-10 rounded-full flex items-center justify-center text-[#334155] hover:bg-[#F1F5F9] transition-colors cursor-pointer"
           aria-label="Open navigation drawer"
         >
           <Menu size={20} />
@@ -135,7 +153,7 @@ const TopNavbar = ({
         {/* Desktop sidebar trigger */}
         <button
           onClick={onToggleSidebar}
-          className="hidden md:flex w-10 h-10 rounded-full items-center justify-center text-slate-400 hover:bg-slate-800 transition-colors cursor-pointer"
+          className="hidden md:flex w-10 h-10 rounded-full items-center justify-center text-[#334155] hover:bg-[#F1F5F9] transition-colors cursor-pointer"
           aria-label="Toggle sidebar panel"
         >
           <Menu size={20} />
@@ -146,30 +164,54 @@ const TopNavbar = ({
         </Link>
       </div>
 
-      {/* Search Input (Task 8) */}
-      <div className="hidden sm:flex items-center w-full max-w-[400px] bg-slate-900/60 border border-slate-800 rounded-full px-3 py-1.5 focus-within:border-brand-cyan transition-all select-none">
-        <Search size={16} className="text-slate-500 mr-2 flex-shrink-0" />
+      {/* Centered Search Pill */}
+      <form
+        onSubmit={handleSearch}
+        className="hidden sm:flex items-center w-full max-w-[420px] bg-white border border-[#E2E8F0] hover:border-slate-350 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 rounded-full px-4 py-2 transition-all select-none"
+      >
+        <button
+          type="submit"
+          className="bg-transparent border-none p-0 text-[#64748B] hover:text-slate-650 mr-2 flex-shrink-0 cursor-pointer focus:outline-none flex items-center justify-center"
+          aria-label="Submit search"
+        >
+          <Search size={16} />
+        </button>
         <input
           type="text"
-          placeholder="Search corporate stream library..."
+          placeholder="Search Streamify library..."
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className="bg-transparent text-xs text-slate-100 w-full focus:outline-none placeholder-slate-500"
+          className="bg-transparent text-xs text-[#0F172A] w-full focus:outline-none placeholder-[#94A3B8]"
           aria-label="Search field input"
         />
+        {!searchValue && (
+          <span className="text-[10px] text-slate-400 bg-slate-100 px-2 py-0.5 rounded border border-slate-200 font-mono select-none flex-shrink-0">
+            ⌘ K
+          </span>
+        )}
         {searchValue && (
           <button
+            type="button"
             onClick={() => setSearchValue("")}
-            className="text-slate-500 hover:text-slate-300 cursor-pointer"
+            className="text-slate-400 hover:text-slate-650 cursor-pointer animate-fade-in"
             aria-label="Clear search field"
           >
             <X size={14} />
           </button>
         )}
-      </div>
+      </form>
 
       {/* Controls / Avatar dropdown */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
+        <Link
+          to="/upload"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F172A] hover:bg-[#E2E8F0] transition-all text-xs font-semibold cursor-pointer shadow-sm active:scale-95"
+          title="Upload Video"
+        >
+          <Plus size={16} className="text-[#0F172A] stroke-[2.5]" />
+          <span>Create</span>
+        </Link>
+
         <ThemeToggle />
 
         <NotificationBell />
@@ -177,26 +219,26 @@ const TopNavbar = ({
         <div className="relative">
           <button
             onClick={onToggleDropdown}
-            className="flex items-center gap-1.5 p-1 rounded-full hover:bg-slate-800/40 transition-colors cursor-pointer"
+            className="flex items-center gap-2 p-1.5 rounded-full hover:bg-[#F1F5F9] transition-colors cursor-pointer border border-transparent hover:border-slate-200"
             aria-label="User profile settings menu"
           >
             <Avatar src={user?.avatar} name={user?.fullname || "User"} size="sm" />
-            <ChevronDown size={14} className="text-slate-500" />
+            <ChevronDown size={14} className="text-slate-450 mr-0.5" />
           </button>
 
           {dropdownOpen && (
             <>
               <div className="fixed inset-0 z-[99]" onClick={onCloseDropdown} />
-              <div className="absolute right-0 top-[calc(100%+8px)] w-[220px] rounded-xl border border-slate-800/80 bg-slate-900 p-1.5 shadow-2xl z-[100] animate-fade-in">
+              <div className="absolute right-0 top-[calc(100%+8px)] w-[220px] rounded-xl border border-[#E2E8F0] bg-white p-1.5 shadow-2xl z-[100] animate-fade-in text-slate-800">
                 <div className="px-3 py-2 text-left">
-                  <p className="text-xs font-semibold text-slate-200 truncate">{user?.fullname}</p>
-                  <p className="text-[10px] text-slate-500 truncate">@{user?.username}</p>
+                  <p className="text-xs font-semibold text-[#0F172A] truncate">{user?.fullname}</p>
+                  <p className="text-[10px] text-[#64748B] truncate">@{user?.username}</p>
                 </div>
-                <hr className="border-slate-800 my-1" />
+                <hr className="border-[#E2E8F0] my-1" />
 
                 <Link
                   to="/"
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-[#334155] hover:bg-[#F1F5F9] hover:text-slate-900 transition-colors"
                   onClick={onCloseDropdown}
                 >
                   <Home size={15} />
@@ -205,17 +247,16 @@ const TopNavbar = ({
 
                 <Link
                   to="/analytics"
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-[#334155] hover:bg-[#F1F5F9] hover:text-slate-900 transition-colors"
                   onClick={onCloseDropdown}
                 >
                   <BarChart3 size={15} />
                   <span>Creator Analytics</span>
                 </Link>
 
-
                 <Link
                   to={`/c/${user?.username}`}
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-[#334155] hover:bg-[#F1F5F9] hover:text-slate-900 transition-colors"
                   onClick={onCloseDropdown}
                 >
                   <User size={15} />
@@ -224,7 +265,7 @@ const TopNavbar = ({
 
                 <Link
                   to="/settings"
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-[#334155] hover:bg-[#F1F5F9] hover:text-slate-900 transition-colors"
                   onClick={onCloseDropdown}
                 >
                   <Settings size={15} />
@@ -233,20 +274,20 @@ const TopNavbar = ({
 
                 <Link
                   to="/upload"
-                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-slate-300 hover:bg-slate-800 transition-colors"
+                  className="flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-[#334155] hover:bg-[#F1F5F9] hover:text-slate-900 transition-colors"
                   onClick={onCloseDropdown}
                 >
                   <Upload size={15} />
                   <span>Upload Video</span>
                 </Link>
 
-                <hr className="border-slate-800 my-1" />
+                <hr className="border-[#E2E8F0] my-1" />
                 <button
                   onClick={() => {
                     onCloseDropdown();
                     onLogout();
                   }}
-                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+                  className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
                 >
                   <LogOut size={15} />
                   <span>Sign Out</span>
@@ -268,125 +309,76 @@ const DesktopSidebar = ({ sidebarExpanded }) => {
 
   const isActive = (path) => location.pathname === path;
 
+  const linkClass = (path) =>
+    `flex items-center gap-4 pl-5 pr-4 py-2.5 rounded-[12px] transition-all duration-250 ease-in-out active:scale-95 h-12 relative group ${
+      isActive(path)
+        ? "bg-[#F1F5F9] text-[#0F172A] font-semibold"
+        : "text-[#334155] hover:text-[#0F172A] hover:bg-[#F1F5F9]"
+    }`;
+
+  const iconClass = (path) =>
+    `transition-transform duration-200 ${
+      isActive(path) ? "scale-110 text-[#0F172A]" : "text-[#64748B] group-hover:scale-110 group-hover:text-[#0F172A]"
+    }`;
+
   return (
     <aside
-      className={`border-r border-slate-800/60 bg-dark-base fixed top-16 bottom-0 left-0 z-[998] py-4 transition-all duration-300 flex flex-col justify-between ${sidebarExpanded ? "w-60" : "w-20 max-[768px]:-translate-x-full"
-        }`}
+      className="bg-white fixed bottom-0 left-0 z-[998] py-6 transition-all duration-300 flex flex-col justify-between border-r border-[#E2E8F0] max-[768px]:-translate-x-full"
+      style={{ top: "72px", width: sidebarExpanded ? "256px" : "80px" }}
     >
-      <nav className="flex flex-col gap-1 px-3">
-        <Link
-          to="/"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/")
-            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-            }`}
-          title="Home Feed"
-        >
-          <Home size={20} className={`transition-transform duration-200 ${isActive("/") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+      <nav className="flex flex-col gap-1.5 px-3">
+        <Link to="/" className={linkClass("/")} title="Home Feed">
+          {isActive("/") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full animate-fade-in" />}
+          <Home size={20} className={iconClass("/")} />
           {sidebarExpanded && <span className="text-xs">Home Feed</span>}
         </Link>
 
-        <Link
-          to="/analytics"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/analytics")
-            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-            }`}
-          title="Creator Analytics"
-        >
-          <BarChart3 size={20} className={`transition-transform duration-200 ${isActive("/analytics") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+        <Link to="/analytics" className={linkClass("/analytics")} title="Creator Analytics">
+          {isActive("/analytics") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full animate-fade-in" />}
+          <BarChart3 size={20} className={iconClass("/analytics")} />
           {sidebarExpanded && <span className="text-xs">Creator Analytics</span>}
         </Link>
 
-
-        <Link
-          to="/trending"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/trending")
-            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-            }`}
-          title="Trending"
-        >
-          <Flame size={20} className={`transition-transform duration-200 ${isActive("/trending") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+        <Link to="/trending" className={linkClass("/trending")} title="Trending">
+          {isActive("/trending") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full animate-fade-in" />}
+          <Flame size={20} className={iconClass("/trending")} />
           {sidebarExpanded && <span className="text-xs">Trending</span>}
         </Link>
 
-        <Link
-          to="/feed/subscriptions"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/feed/subscriptions")
-            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-            }`}
-          title="Subscriptions"
-        >
-          <UserCheck size={20} className={`transition-transform duration-200 ${isActive("/feed/subscriptions") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+        <Link to="/feed/subscriptions" className={linkClass("/feed/subscriptions")} title="Subscriptions">
+          {isActive("/feed/subscriptions") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full animate-fade-in" />}
+          <UserCheck size={20} className={iconClass("/feed/subscriptions")} />
           {sidebarExpanded && <span className="text-xs">Subscriptions</span>}
         </Link>
 
-        <Link
-          to="/playlists"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/playlists")
-            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-            }`}
-          title="Playlists"
-        >
-          <PlaySquare size={20} className={`transition-transform duration-200 ${isActive("/playlists") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+        <Link to="/playlists" className={linkClass("/playlists")} title="Playlists">
+          {isActive("/playlists") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full animate-fade-in" />}
+          <PlaySquare size={20} className={iconClass("/playlists")} />
           {sidebarExpanded && <span className="text-xs">Playlists</span>}
         </Link>
 
-        <Link
-          to="/history"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/history")
-            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-            }`}
-          title="Watch History"
-        >
-          <Clock size={20} className={`transition-transform duration-200 ${isActive("/history") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+        <Link to="/history" className={linkClass("/history")} title="Watch History">
+          {isActive("/history") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full animate-fade-in" />}
+          <Clock size={20} className={iconClass("/history")} />
           {sidebarExpanded && <span className="text-xs">History</span>}
         </Link>
 
-        <Link
-          to="/watch-later"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/watch-later")
-            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-            }`}
-          title="Watch Later"
-        >
-          <Bookmark size={20} className={`transition-transform duration-200 ${isActive("/watch-later") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+        <Link to="/watch-later" className={linkClass("/watch-later")} title="Watch Later">
+          {isActive("/watch-later") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full animate-fade-in" />}
+          <Bookmark size={20} className={iconClass("/watch-later")} />
           {sidebarExpanded && <span className="text-xs">Watch Later</span>}
         </Link>
 
-        <Link
-          to="/liked-videos"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/liked-videos")
-            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-            }`}
-          title="Liked Videos"
-        >
-          <ThumbsUp size={20} className={`transition-transform duration-200 ${isActive("/liked-videos") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
+        <Link to="/liked-videos" className={linkClass("/liked-videos")} title="Liked Videos">
+          {isActive("/liked-videos") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full animate-fade-in" />}
+          <ThumbsUp size={20} className={iconClass("/liked-videos")} />
           {sidebarExpanded && <span className="text-xs">Liked Videos</span>}
-        </Link>
-
-        <Link
-          to="/upload"
-          className={`flex items-center gap-4 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out active:scale-95 h-12 group ${isActive("/upload")
-            ? "bg-cyan-500/10 text-brand-cyan font-semibold border-l-2 border-brand-cyan rounded-l-none"
-            : "text-slate-400 hover:text-slate-200 hover:bg-slate-900/50"
-            }`}
-          title="Upload Video"
-        >
-          <Upload size={20} className={`transition-transform duration-200 ${isActive("/upload") ? "scale-110 text-brand-cyan" : "group-hover:scale-110 group-hover:text-brand-cyan"}`} />
-          {sidebarExpanded && <span className="text-xs">Upload Video</span>}
         </Link>
       </nav>
 
       {sidebarExpanded && (
-        <div className="px-6 py-4 border-t border-slate-800/40 text-center select-none">
-          <p className="text-[10px] text-slate-600">Streamify Corp &copy; {new Date().getFullYear()}</p>
+        <div className="px-6 py-4 border-t border-[#E2E8F0] text-left select-none">
+          <p className="text-[10px] text-slate-400">Streamify Corp &copy; {new Date().getFullYear()}</p>
         </div>
       )}
     </aside>
@@ -394,9 +386,19 @@ const DesktopSidebar = ({ sidebarExpanded }) => {
 };
 
 // ==========================================
-// Sub Component: MobileDrawer (Task 1)
+// Sub Component: MobileDrawer
 // ==========================================
 const MobileDrawer = ({ onClose, onLogout }) => {
+  const location = useLocation();
+  const isActive = (path) => location.pathname === path;
+
+  const linkClass = (path) =>
+    `flex items-center gap-4 px-4 py-3 rounded-[12px] transition-all relative ${
+      isActive(path)
+        ? "bg-[#F1F5F9] text-[#0F172A] font-semibold"
+        : "text-[#334155] hover:bg-[#F1F5F9]"
+    }`;
+
   return (
     <>
       {/* Backdrop */}
@@ -406,7 +408,7 @@ const MobileDrawer = ({ onClose, onLogout }) => {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
         onClick={onClose}
-        className="fixed inset-0 z-[1998] bg-slate-950/70 backdrop-blur-sm"
+        className="fixed inset-0 z-[1998] bg-slate-950/40 backdrop-blur-sm"
       />
 
       {/* Drawer Card */}
@@ -415,14 +417,15 @@ const MobileDrawer = ({ onClose, onLogout }) => {
         animate={{ x: 0 }}
         exit={{ x: "-100%" }}
         transition={{ type: "tween", duration: 0.25, ease: "easeOut" }}
-        className="fixed top-0 bottom-0 left-0 w-[280px] bg-dark-base border-r border-slate-800 z-[1999] p-6 flex flex-col justify-between"
+        className="fixed bottom-0 left-0 w-[280px] bg-white border-r border-[#E2E8F0] z-[1999] p-6 flex flex-col justify-between"
+        style={{ top: "72px" }}
       >
         <div className="flex flex-col gap-8">
           <div className="flex items-center justify-between">
             <AppLogo />
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-800 text-slate-400 cursor-pointer"
+              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-[#F1F5F9] text-[#334155] cursor-pointer"
               aria-label="Close drawer"
             >
               <X size={18} />
@@ -430,86 +433,52 @@ const MobileDrawer = ({ onClose, onLogout }) => {
           </div>
 
           <nav className="flex flex-col gap-2">
-            <Link
-              to="/"
-              onClick={onClose}
-              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
-            >
+            <Link to="/" onClick={onClose} className={linkClass("/")}>
+              {isActive("/") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full" />}
               <Home size={20} />
               <span className="text-xs font-semibold">Home Feed</span>
             </Link>
 
-            <Link
-              to="/analytics"
-              onClick={onClose}
-              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
-            >
+            <Link to="/analytics" onClick={onClose} className={linkClass("/analytics")}>
+              {isActive("/analytics") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full" />}
               <BarChart3 size={20} />
               <span className="text-xs font-semibold">Creator Analytics</span>
             </Link>
 
-
-            <Link
-              to="/trending"
-              onClick={onClose}
-              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
-            >
+            <Link to="/trending" onClick={onClose} className={linkClass("/trending")}>
+              {isActive("/trending") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full" />}
               <Flame size={20} />
               <span className="text-xs font-semibold">Trending</span>
             </Link>
 
-            <Link
-              to="/feed/subscriptions"
-              onClick={onClose}
-              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
-            >
+            <Link to="/feed/subscriptions" onClick={onClose} className={linkClass("/feed/subscriptions")}>
+              {isActive("/feed/subscriptions") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full" />}
               <UserCheck size={20} />
               <span className="text-xs font-semibold">Subscriptions</span>
             </Link>
 
-            <Link
-              to="/playlists"
-              onClick={onClose}
-              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
-            >
+            <Link to="/playlists" onClick={onClose} className={linkClass("/playlists")}>
+              {isActive("/playlists") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full" />}
               <PlaySquare size={20} />
               <span className="text-xs font-semibold">Playlists</span>
             </Link>
 
-            <Link
-              to="/history"
-              onClick={onClose}
-              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
-            >
+            <Link to="/history" onClick={onClose} className={linkClass("/history")}>
+              {isActive("/history") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full" />}
               <Clock size={20} />
               <span className="text-xs font-semibold">History</span>
             </Link>
 
-            <Link
-              to="/watch-later"
-              onClick={onClose}
-              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
-            >
+            <Link to="/watch-later" onClick={onClose} className={linkClass("/watch-later")}>
+              {isActive("/watch-later") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full" />}
               <Bookmark size={20} />
               <span className="text-xs font-semibold">Watch Later</span>
             </Link>
 
-            <Link
-              to="/liked-videos"
-              onClick={onClose}
-              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
-            >
+            <Link to="/liked-videos" onClick={onClose} className={linkClass("/liked-videos")}>
+              {isActive("/liked-videos") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-[#0F172A] rounded-r-full" />}
               <ThumbsUp size={20} />
               <span className="text-xs font-semibold">Liked Videos</span>
-            </Link>
-
-            <Link
-              to="/upload"
-              onClick={onClose}
-              className="flex items-center gap-4 px-3 py-3 rounded-xl text-slate-300 hover:bg-slate-800 transition-colors"
-            >
-              <Upload size={20} />
-              <span className="text-xs font-semibold">Upload Video</span>
             </Link>
           </nav>
         </div>
@@ -519,7 +488,7 @@ const MobileDrawer = ({ onClose, onLogout }) => {
             onClose();
             onLogout();
           }}
-          className="w-full flex items-center gap-4 px-3 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer"
+          className="w-full flex items-center gap-4 px-3 py-3 rounded-[12px] text-red-500 hover:bg-red-50 transition-colors cursor-pointer"
         >
           <LogOut size={20} />
           <span className="text-xs font-semibold">Sign Out</span>
@@ -528,4 +497,5 @@ const MobileDrawer = ({ onClose, onLogout }) => {
     </>
   );
 };
+
 export default AppLayout;

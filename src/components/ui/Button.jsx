@@ -11,10 +11,10 @@ export const Button = ({
 }) => {
   // Variant mapping using tailwind classes
   const variants = {
-    solid: "bg-gradient-to-r from-brand-cyan to-brand-indigo text-slate-950 font-medium shadow-md hover:opacity-90 hover:scale-[1.01] hover:shadow-cyan-500/20 active:scale-[0.97]",
-    outline: "border border-slate-700 text-slate-200 hover:bg-slate-800 hover:border-brand-cyan hover:text-brand-cyan active:scale-[0.97]",
-    ghost: "text-slate-400 hover:bg-slate-800 hover:text-slate-100 active:scale-[0.97]",
-    danger: "bg-red-500/10 border border-red-500/25 text-red-500 hover:bg-red-500 hover:text-slate-50 active:scale-[0.97]",
+    solid: "bg-[#F1F5F9] border border-[#E2E8F0] text-[#0F172A] font-semibold shadow-sm hover:bg-[#E2E8F0] hover:scale-[1.01] active:scale-[0.97]",
+    outline: "border border-[#E2E8F0] bg-white text-[#334155] hover:bg-[#F1F5F9] hover:text-[#0F172A] active:scale-[0.97]",
+    ghost: "text-[#64748B] hover:bg-[#F1F5F9] hover:text-[#0F172A] active:scale-[0.97]",
+    danger: "border border-red-200 bg-white text-red-500 hover:bg-red-50 active:scale-[0.97]",
   };
 
   const sizes = {
@@ -25,7 +25,7 @@ export const Button = ({
 
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-lg transition-all duration-200 cubic-bezier(0.4, 0, 0.2, 1) cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-brand-cyan focus-visible:outline-offset-2 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-lg transition-all duration-200 cubic-bezier(0.4, 0, 0.2, 1) cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-slate-400 focus-visible:outline-offset-2 ${variants[variant]} ${sizes[size]} ${className}`}
       disabled={disabled || isLoading}
       {...props}
     >

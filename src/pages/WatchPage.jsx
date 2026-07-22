@@ -97,14 +97,14 @@ export const WatchPage = () => {
   const alternativeSuggestions = similarVideosList?.filter((v) => v._id !== videoId) || [];
 
   return (
-    <div className="p-6 md:p-8 max-w-[1440px] mx-auto animate-fade-in text-slate-100 select-none">
+    <div className="p-6 md:p-8 max-w-[1440px] mx-auto animate-fade-in text-[#111827] select-none">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
         
         {/* Left Side: Main Player and Metadata Details */}
         <div className="flex flex-col">
           <VideoPlayer src={video.videoFile} poster={video.thumbnail} videoId={videoId} resumePosition={resumePosition} />
           
-          <h1 className="text-lg md:text-xl font-bold text-slate-100 mt-4 leading-relaxed">
+          <h1 className="text-lg md:text-xl font-bold text-[#111827] mt-4 leading-relaxed">
             {video.title}
           </h1>
 
@@ -116,10 +116,10 @@ export const WatchPage = () => {
                 <Avatar src={video.owner.avatar} name={video.owner.fullname} size="lg" />
               </Link>
               <div className="flex flex-col">
-                <Link to={`/c/${video.owner.username}`} className="font-semibold text-slate-200 hover:text-brand-cyan transition-colors text-xs">
+                <Link to={`/c/${video.owner.username}`} className="font-semibold text-[#374151] hover:text-brand-cyan transition-colors text-xs">
                   {video.owner.fullname}
                 </Link>
-                <span className="text-[10px] text-slate-500 mt-0.5">@{video.owner.username}</span>
+                <span className="text-[10px] text-[#6B7280] mt-0.5">@{video.owner.username}</span>
               </div>
               {!isOwnVideo && (
                 <Button 
@@ -139,11 +139,11 @@ export const WatchPage = () => {
               <Button 
                 variant={likesInfo?.likedByCurrentUser ? "solid" : "outline"} 
                 size="sm" 
-                className="gap-1.5 rounded-full transition-all duration-150 active:scale-95"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full transition-all duration-150 active:scale-95 px-4"
                 onClick={() => toggleLike()}
                 disabled={isToggling}
               >
-                <ThumbsUp size={14} className={likesInfo?.likedByCurrentUser ? "fill-current text-cyan-400 animate-bounce" : "transition-transform"} />
+                <ThumbsUp size={14} className={likesInfo?.likedByCurrentUser ? "fill-current text-[#0F172A] animate-bounce" : "transition-transform"} />
                 <span className="text-[11px] font-semibold">
                   {likesInfo?.likedByCurrentUser ? "Liked" : "Like"} ({formatNumber(likesInfo?.totalLikes || 0)})
                 </span>
@@ -151,53 +151,53 @@ export const WatchPage = () => {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="gap-1.5 rounded-full"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full px-4"
                 onClick={handleShare}
               >
                 <Share2 size={14} />
-                <span className="text-[11px]">Share</span>
+                <span className="text-[11px] font-semibold">Share</span>
               </Button>
               <Button 
                 variant={isWatchLater ? "solid" : "outline"} 
                 size="sm" 
-                className="gap-1.5 rounded-full"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full px-4"
                 onClick={() => toggleWatchLater({ videoId, video })}
                 disabled={isWatchLaterPending}
               >
                 {isWatchLaterPending ? (
-                  <Loader2 size={14} className="animate-spin text-cyan-400" />
+                  <Loader2 size={14} className="animate-spin text-[#0F172A]" />
                 ) : (
-                  <Clock size={14} className={isWatchLater ? "text-cyan-400" : ""} />
+                  <Clock size={14} className={isWatchLater ? "text-[#0F172A]" : ""} />
                 )}
                 <span className="text-[11px] font-semibold">Watch Later</span>
               </Button>
               <Button 
                 variant={isSaved ? "solid" : "outline"} 
                 size="sm" 
-                className="gap-1.5 rounded-full"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full px-4"
                 onClick={handleSave}
               >
                 <Bookmark size={14} />
-                <span className="text-[11px]">Save</span>
+                <span className="text-[11px] font-semibold">Save</span>
               </Button>
             </div>
           </div>
 
           {/* Video Description panel */}
-          <div className="rounded-xl border border-slate-800/40 bg-slate-900/10 p-4 mt-6">
+          <div className="rounded-xl border border-[#E2E8F0] bg-white p-4 mt-6">
             <div className="flex gap-2 text-[10px] text-slate-500 font-semibold mb-2">
               <span>{formatNumber(video.views)} views</span>
               <span>•</span>
               <span>Uploaded 3 days ago</span>
             </div>
-            <p className={`text-xs text-slate-400 leading-relaxed whitespace-pre-wrap break-words ${
+            <p className={`text-xs text-slate-600 leading-relaxed whitespace-pre-wrap break-words ${
               descExpanded ? "" : "line-clamp-2"
             }`}>
               {video.description}
             </p>
             <button 
               onClick={() => setDescExpanded(!descExpanded)}
-              className="flex items-center gap-1 text-[10px] font-bold text-slate-200 hover:text-brand-cyan mt-3 cursor-pointer transition-colors"
+              className="flex items-center gap-1 text-[11px] font-bold text-[#0F172A] hover:text-slate-700 mt-3 cursor-pointer transition-colors"
             >
               <span>{descExpanded ? "Show Less" : "Show More"}</span>
               {descExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}

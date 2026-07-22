@@ -82,10 +82,10 @@ export const RegisterForm = () => {
 
   const getStrengthLabel = (score) => {
     if (score === 0) return { label: "", color: "bg-transparent", text: "text-transparent" };
-    if (score <= 25) return { label: "Weak", color: "bg-red-500", text: "text-red-400" };
-    if (score <= 50) return { label: "Fair", color: "bg-amber-500", text: "text-amber-400" };
-    if (score <= 75) return { label: "Good", color: "bg-cyan-500", text: "text-cyan-400" };
-    return { label: "Strong", color: "bg-emerald-500", text: "text-emerald-400" };
+    if (score <= 25) return { label: "Weak", color: "bg-red-500", text: "text-red-500" };
+    if (score <= 50) return { label: "Fair", color: "bg-amber-500", text: "text-amber-500" };
+    if (score <= 75) return { label: "Good", color: "bg-cyan-600", text: "text-cyan-600" };
+    return { label: "Strong", color: "bg-emerald-600", text: "text-emerald-600" };
   };
 
   const strengthMeta = getStrengthLabel(strengthScore);
@@ -191,7 +191,7 @@ export const RegisterForm = () => {
 
       {/* Avatar Drag & Drop Upload */}
       <div className="flex flex-col gap-1.5 w-full">
-        <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Profile Avatar (Required)</span>
+        <span className="text-xs font-semibold text-[#334155] uppercase tracking-wider">Profile Avatar (Required)</span>
         <div 
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
@@ -199,20 +199,20 @@ export const RegisterForm = () => {
             if (!isPending) handleAvatarChange(e.dataTransfer.files?.[0]);
           }}
           className={`w-full min-h-[96px] rounded-xl border border-dashed flex flex-col items-center justify-center p-4 transition-colors select-none ${
-            avatarError ? "border-red-500 bg-red-500/5" : "border-slate-800 bg-slate-900/10 hover:border-slate-700"
+            avatarError ? "border-red-500 bg-red-50" : "border-[#E2E8F0] bg-[#F8FAFC] hover:border-slate-400"
           }`}
         >
           {avatarPreview ? (
             <div className="flex items-center gap-4 w-full">
-              <img src={avatarPreview} alt="Avatar Preview" className="w-12 h-12 rounded-full object-cover border border-slate-800" />
+              <img src={avatarPreview} alt="Avatar Preview" className="w-12 h-12 rounded-full object-cover border border-[#E2E8F0]" />
               <div className="flex flex-col flex-grow min-w-0">
-                <span className="text-2xs text-slate-200 truncate">{avatar.name}</span>
+                <span className="text-xs font-semibold text-[#0F172A] truncate">{avatar.name}</span>
                 <span className="text-[10px] text-slate-500">{(avatar.size / 1024).toFixed(1)} KB</span>
               </div>
               <button 
                 type="button" 
                 onClick={() => { setAvatar(null); setAvatarPreview(null); }}
-                className="text-slate-500 hover:text-slate-200 cursor-pointer"
+                className="text-slate-400 hover:text-[#0F172A] cursor-pointer"
                 disabled={isPending}
                 aria-label="Remove avatar file selection"
               >
@@ -221,8 +221,8 @@ export const RegisterForm = () => {
             </div>
           ) : (
             <label className="flex flex-col items-center gap-1 cursor-pointer w-full text-center">
-              <UploadCloud size={24} className="text-slate-500" />
-              <span className="text-2xs text-slate-300">Drag & drop or <span className="text-brand-cyan hover:underline">browse</span> avatar</span>
+              <UploadCloud size={24} className="text-[#334155]" />
+              <span className="text-xs font-medium text-[#334155]">Drag & drop or <span className="text-[#0F172A] underline font-bold">browse</span> avatar</span>
               <span className="text-[10px] text-slate-500">JPG, PNG, or WebP (max 5MB)</span>
               <input
                 type="file"
@@ -234,12 +234,12 @@ export const RegisterForm = () => {
             </label>
           )}
         </div>
-        {avatarError && <span className="text-xs text-red-500">{avatarError}</span>}
+        {avatarError && <span className="text-xs text-red-500 font-medium">{avatarError}</span>}
       </div>
 
       {/* Cover Image Drag & Drop Upload */}
       <div className="flex flex-col gap-1.5 w-full">
-        <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Cover Banner (Optional)</span>
+        <span className="text-xs font-semibold text-[#334155] uppercase tracking-wider">Cover Banner (Optional)</span>
         <div 
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => {
@@ -247,20 +247,20 @@ export const RegisterForm = () => {
             if (!isPending) handleCoverChange(e.dataTransfer.files?.[0]);
           }}
           className={`w-full min-h-[96px] rounded-xl border border-dashed flex flex-col items-center justify-center p-4 transition-colors select-none ${
-            coverError ? "border-red-500 bg-red-500/5" : "border-slate-800 bg-slate-900/10 hover:border-slate-700"
+            coverError ? "border-red-500 bg-red-50" : "border-[#E2E8F0] bg-[#F8FAFC] hover:border-slate-400"
           }`}
         >
           {coverImagePreview ? (
             <div className="flex items-center gap-4 w-full">
-              <img src={coverImagePreview} alt="Cover Preview" className="w-20 h-10 rounded object-cover border border-slate-800" />
+              <img src={coverImagePreview} alt="Cover Preview" className="w-20 h-10 rounded object-cover border border-[#E2E8F0]" />
               <div className="flex flex-col flex-grow min-w-0">
-                <span className="text-2xs text-slate-200 truncate">{coverImage.name}</span>
+                <span className="text-xs font-semibold text-[#0F172A] truncate">{coverImage.name}</span>
                 <span className="text-[10px] text-slate-500">{(coverImage.size / 1024).toFixed(1)} KB</span>
               </div>
               <button 
                 type="button" 
                 onClick={() => { setCoverImage(null); setCoverImagePreview(null); }}
-                className="text-slate-500 hover:text-slate-200 cursor-pointer"
+                className="text-slate-400 hover:text-[#0F172A] cursor-pointer"
                 disabled={isPending}
                 aria-label="Remove banner file selection"
               >
@@ -269,8 +269,8 @@ export const RegisterForm = () => {
             </div>
           ) : (
             <label className="flex flex-col items-center gap-1 cursor-pointer w-full text-center">
-              <UploadCloud size={24} className="text-slate-500" />
-              <span className="text-2xs text-slate-300">Drag & drop or <span className="text-brand-cyan hover:underline">browse</span> banner</span>
+              <UploadCloud size={24} className="text-[#334155]" />
+              <span className="text-xs font-medium text-[#334155]">Drag & drop or <span className="text-[#0F172A] underline font-bold">browse</span> banner</span>
               <span className="text-[10px] text-slate-500">JPG, PNG, or WebP (max 5MB)</span>
               <input
                 type="file"
@@ -282,7 +282,7 @@ export const RegisterForm = () => {
             </label>
           )}
         </div>
-        {coverError && <span className="text-xs text-red-500">{coverError}</span>}
+        {coverError && <span className="text-xs text-red-500 font-medium">{coverError}</span>}
       </div>
 
       <InputField
@@ -299,10 +299,10 @@ export const RegisterForm = () => {
       {watchedPassword && (
         <div className="flex flex-col gap-1 mt-0.5">
           <div className="flex justify-between items-center text-[10px] font-semibold">
-            <span className="text-slate-400">Password Strength</span>
+            <span className="text-[#334155]">Password Strength</span>
             <span className={strengthMeta.text}>{strengthMeta.label}</span>
           </div>
-          <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+          <div className="w-full h-1 bg-[#E2E8F0] rounded-full overflow-hidden">
             <div className={`h-full ${strengthMeta.color} transition-all duration-300`} style={{ width: `${strengthScore}%` }} />
           </div>
         </div>

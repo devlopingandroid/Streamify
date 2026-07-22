@@ -14,13 +14,13 @@ export const NotificationBell = () => {
     <div className="relative flex items-center justify-center">
       <button
         onClick={toggleDropdown}
-        className={`relative flex items-center justify-center w-9 h-9 rounded-full bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-100 hover:bg-slate-800 hover:border-slate-700/60 transition-all duration-200 cursor-pointer ${
-          dropdownOpen ? "bg-slate-800 border-slate-700 text-slate-100" : ""
+        className={`relative flex items-center justify-center w-9 h-9 rounded-full bg-[#0F172A] border border-slate-700 text-white hover:bg-slate-800 transition-all duration-200 cursor-pointer shadow-sm ${
+          dropdownOpen ? "bg-slate-800 border-slate-600 text-white" : ""
         }`}
         aria-label="View notifications"
       >
-        <Bell size={18} />
-        <NotificationBadge className="absolute -top-0.5 -right-0.5 border-2 border-slate-950" />
+        <Bell size={17} className="text-white" />
+        <NotificationBadge className="absolute -top-0.5 -right-0.5 border-2 border-[#0F172A]" />
       </button>
 
       <NotificationDropdown isOpen={dropdownOpen} onClose={() => setDropdownOpen(false)} />

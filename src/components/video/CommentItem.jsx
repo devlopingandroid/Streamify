@@ -73,21 +73,21 @@ export const CommentItem = ({ comment, videoId, parentCommentId = null }) => {
       <div className="flex flex-col flex-grow min-w-0">
         {/* Author / Time Details Header */}
         <div className="flex items-center gap-2 flex-wrap">
-          <Link to="/landing" className="text-xs font-semibold text-slate-200 hover:text-brand-cyan transition-colors">
+          <Link to="/landing" className="text-xs font-semibold text-[#374151] hover:text-[#111827] transition-colors">
             {comment.owner?.fullname}
           </Link>
-          <span className="text-[10px] text-slate-500">@{comment.owner?.username}</span>
-          <span className="text-[10px] text-slate-500">•</span>
-          <span className="text-[10px] text-slate-500">{formatTimeAgo(comment.createdAt)}</span>
+          <span className="text-[10px] text-[#6B7280]">@{comment.owner?.username}</span>
+          <span className="text-[10px] text-[#6B7280]">•</span>
+          <span className="text-[10px] text-[#6B7280]">{formatTimeAgo(comment.createdAt)}</span>
           {comment.isEdited && (
-            <span className="text-[9px] text-slate-500 font-medium italic bg-slate-900/60 px-1.5 py-0.5 rounded">
+            <span className="text-[9px] text-[#6B7280] font-medium italic bg-slate-100 px-1.5 py-0.5 rounded">
               Edited
             </span>
           )}
         </div>
 
         {/* Content Box or Inline Edit Field */}
-        <div className="mt-1.5 text-xs text-slate-300 leading-relaxed break-words pr-2">
+        <div className="mt-1.5 text-xs text-[#374151] leading-relaxed break-words pr-2">
           {isEditing ? (
             <CommentInput
               initialValue={comment.content}
@@ -104,11 +104,11 @@ export const CommentItem = ({ comment, videoId, parentCommentId = null }) => {
 
         {/* Actions Row */}
         {!isEditing && (
-          <div className="flex items-center gap-4 mt-2.5 text-[10px] text-slate-500 font-semibold select-none">
+          <div className="flex items-center gap-4 mt-2.5 text-[10px] text-[#6B7280] font-semibold select-none">
             {isParent && (
               <button
                 onClick={() => setIsReplying(!isReplying)}
-                className="flex items-center gap-1 hover:text-brand-cyan transition-colors cursor-pointer"
+                className="flex items-center gap-1 hover:text-[#111827] transition-colors cursor-pointer"
                 aria-label="Reply to comment"
               >
                 <MessageSquare size={12} />
@@ -120,7 +120,7 @@ export const CommentItem = ({ comment, videoId, parentCommentId = null }) => {
               <>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="flex items-center gap-1 hover:text-brand-cyan transition-colors cursor-pointer"
+                  className="flex items-center gap-1 hover:text-[#111827] transition-colors cursor-pointer"
                   aria-label="Edit comment"
                 >
                   <Edit2 size={12} />
@@ -128,7 +128,7 @@ export const CommentItem = ({ comment, videoId, parentCommentId = null }) => {
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="flex items-center gap-1 hover:text-red-400 transition-colors cursor-pointer"
+                  className="flex items-center gap-1 hover:text-red-500 transition-colors cursor-pointer"
                   aria-label="Delete comment"
                 >
                   <Trash2 size={12} />

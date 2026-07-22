@@ -263,14 +263,14 @@ export const VideoPlayer = ({ src, poster, videoId, resumePosition }) => {
 
       {/* Custom Control Bar Overlay */}
       <div 
-        className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent flex flex-col p-4 pt-12 transition-opacity duration-300 z-10 ${
+        className={`video-controls absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/45 to-transparent flex flex-col p-4 pt-12 transition-opacity duration-300 z-10 ${
           showControls ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
         {/* Progress Scrubber */}
         <div className="relative w-full h-1 bg-white/20 rounded-full mb-4 flex items-center hover:h-1.5 transition-all">
           <div 
-            className="absolute top-0 left-0 h-full bg-brand-cyan rounded-full" 
+            className="absolute top-0 left-0 h-full bg-white rounded-full" 
             style={{ width: `${progressPercent}%` }} 
           />
           <input
@@ -286,24 +286,24 @@ export const VideoPlayer = ({ src, poster, videoId, resumePosition }) => {
         </div>
 
         {/* Action Controls Row */}
-        <div className="flex justify-between items-center text-slate-100">
+        <div className="flex justify-between items-center text-white">
           <div className="flex items-center gap-4">
             <button 
               onClick={togglePlay} 
-              className="hover:text-brand-cyan transition-colors cursor-pointer"
+              className="text-white hover:text-white/80 transition-colors cursor-pointer flex items-center justify-center"
               aria-label={isPlaying ? "Pause" : "Play"}
             >
-              {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" />}
+              {isPlaying ? <Pause size={18} fill="currentColor" className="text-white" /> : <Play size={18} fill="currentColor" className="text-white" />}
             </button>
 
             {/* Volume controls */}
             <div className="flex items-center gap-2">
               <button 
                 onClick={toggleMute} 
-                className="hover:text-brand-cyan transition-colors cursor-pointer"
+                className="text-white hover:text-white/80 transition-colors cursor-pointer flex items-center justify-center"
                 aria-label={isMuted ? "Unmute" : "Mute"}
               >
-                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+                {isMuted ? <VolumeX size={18} className="text-white" /> : <Volume2 size={18} className="text-white" />}
               </button>
               <input
                 type="range"
@@ -312,12 +312,12 @@ export const VideoPlayer = ({ src, poster, videoId, resumePosition }) => {
                 step="0.05"
                 value={isMuted ? 0 : volume}
                 onChange={handleVolumeChange}
-                className="w-16 h-1 cursor-pointer accent-brand-cyan"
+                className="w-16 h-1 cursor-pointer accent-white"
                 aria-label="Volume slider controls"
               />
             </div>
 
-            <span className="text-[10px] font-semibold text-slate-300">
+            <span className="text-[10px] font-semibold text-white/90 select-none">
               {formatDuration(currentTime)} / {formatDuration(duration)}
             </span>
           </div>
@@ -326,7 +326,7 @@ export const VideoPlayer = ({ src, poster, videoId, resumePosition }) => {
             {/* Playback speed selector */}
             <div className="relative group/speed">
               <button 
-                className="text-[10px] font-bold px-2 py-1 rounded bg-slate-800 hover:text-brand-cyan transition-colors cursor-pointer"
+                className="text-[10px] font-bold px-2 py-1 rounded bg-[#0F172A] text-white border border-slate-700 hover:bg-slate-800 transition-colors cursor-pointer"
                 aria-label="Playback speed"
               >
                 {playbackRate}x
@@ -337,7 +337,7 @@ export const VideoPlayer = ({ src, poster, videoId, resumePosition }) => {
                     key={rate}
                     onClick={() => changePlaybackRate(rate)}
                     className={`px-3 py-1 text-[10px] rounded text-left hover:bg-slate-800 transition-colors cursor-pointer ${
-                      playbackRate === rate ? "text-brand-cyan font-bold" : "text-slate-400"
+                      playbackRate === rate ? "text-white font-bold" : "text-slate-400"
                     }`}
                   >
                     {rate}x
@@ -348,10 +348,10 @@ export const VideoPlayer = ({ src, poster, videoId, resumePosition }) => {
 
             <button 
               onClick={toggleFullscreen} 
-              className="hover:text-brand-cyan transition-colors cursor-pointer"
+              className="text-white hover:text-white/80 transition-colors cursor-pointer flex items-center justify-center"
               aria-label={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
             >
-              {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+              {isFullscreen ? <Minimize size={18} className="text-white" /> : <Maximize size={18} className="text-white" />}
             </button>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  theme: localStorage.getItem("viewstream-theme") || "dark",
+  theme: localStorage.getItem("streamify-theme") || "dark",
   sidebarExpanded: true,
 };
 
@@ -18,7 +18,7 @@ const uiSlice = createSlice({
     setTheme: (state, action) => {
       const theme = action.payload;
       state.theme = theme;
-      localStorage.setItem("viewstream-theme", theme);
+      localStorage.setItem("streamify-theme", theme);
       
       const root = window.document.documentElement;
       root.removeAttribute("data-theme");

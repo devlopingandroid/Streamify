@@ -60,7 +60,7 @@ export const CommentSection = ({ videoId }) => {
   return (
     <div className="mt-8 text-left">
       {/* Header with Comment Counts */}
-      <h3 className="text-sm font-bold text-slate-200 mb-4 select-none">
+      <h3 className="text-sm font-bold text-[#111827] mb-4 select-none">
         {countLoading ? "Comments" : `${count} ${count === 1 ? "Comment" : "Comments"}`}
       </h3>
 

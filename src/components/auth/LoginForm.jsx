@@ -81,7 +81,7 @@ export const LoginForm = () => {
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-[34px] text-slate-500 hover:text-slate-200 transition-colors cursor-pointer"
+          className="absolute right-3 top-[34px] text-slate-500 hover:text-[#0F172A] transition-colors cursor-pointer"
           disabled={isPending}
           aria-label={showPassword ? "Hide password text" : "Show password text"}
         >
@@ -90,12 +90,12 @@ export const LoginForm = () => {
       </div>
 
       <div className="flex items-center justify-between mt-1 select-none">
-        <label className="flex items-center gap-2 text-2xs text-slate-400 cursor-pointer">
+        <label className="flex items-center gap-2 text-xs text-[#334155] font-semibold cursor-pointer">
           <input
             type="checkbox"
             checked={rememberSession}
             onChange={(e) => setRememberSession(e.target.checked)}
-            className="rounded bg-slate-900 border-slate-800 text-brand-cyan focus:ring-brand-cyan focus:ring-offset-slate-900"
+            className="rounded border-[#E2E8F0] accent-[#0F172A]"
             disabled={isPending}
           />
           <span>Remember Session</span>
