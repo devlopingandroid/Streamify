@@ -1,3 +1,4 @@
+//import all directories
 import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
