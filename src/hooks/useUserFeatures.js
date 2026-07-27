@@ -54,19 +54,22 @@ export const useSearch = (query = "") => {
   return useQuery({
     queryKey: ["search", query],
     queryFn: async () => {
-      try {
-        console.log(`[Search Hook Debug] Sending API request for query: "${query}"`);
-        const res = await getSearchResultsApi(query);
-        console.log("[Search Hook Debug] API response received:", res);
-        const videos = res?.data?.docs || [];
-        console.log("[Search Hook Debug] Parsed videos array:", videos);
-        return videos;
-      } catch (err) {
-        console.error("[Search Hook Debug] API request failed:", err);
-        return [];
+      console.log(`[Search Hook Debug] Sending API request for query: "${query}"`);
+      const res = await getSearchResultsApi(query);
+      console.log("[Search Hook Debug] API response received:", res);
+      const data = res?.data;
+      let videos = [];
+      if (Array.isArray(data)) {
+        videos = data;
+      } else if (Array.isArray(data?.docs)) {
+        videos = data.docs;
+      } else if (Array.isArray(res?.docs)) {
+        videos = res.docs;
       }
+      console.log("[Search Hook Debug] Parsed videos array:", videos);
+      return videos;
     },
-    enabled: !!query,
+    enabled: query !== undefined,
   });
 };
 

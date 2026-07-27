@@ -8,6 +8,8 @@ import { PageLoader } from "../components/ui/PageLoader";
 const LandingPage = lazy(() => import("../pages/LandingPage").then(module => ({ default: module.LandingPage })));
 const LoginPage = lazy(() => import("../pages/LoginPage").then(module => ({ default: module.LoginPage })));
 const RegisterPage = lazy(() => import("../pages/RegisterPage").then(module => ({ default: module.RegisterPage })));
+const ForgotPasswordPage = lazy(() => import("../pages/ForgotPasswordPage").then(module => ({ default: module.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import("../pages/ResetPasswordPage").then(module => ({ default: module.ResetPasswordPage })));
 const HomePage = lazy(() => import("../pages/HomePage").then(module => ({ default: module.HomePage })));
 const WatchPage = lazy(() => import("../pages/WatchPage").then(module => ({ default: module.WatchPage })));
 const ChannelPage = lazy(() => import("../pages/ChannelPage").then(module => ({ default: module.ChannelPage })));
@@ -38,10 +40,12 @@ export const AppRoutes = () => {
     <BrowserRouter>
       <Suspense fallback={<PageLoader message="Loading page assets..." />}>
         <Routes>
-          {/* Public-Only Gateway (Sign-in / Register) */}
+          {/* Public-Only Gateway (Sign-in / Register / Forgot Password / Reset Password) */}
           <Route element={<PublicOnlyRoute redirectPath="/" />}>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
           </Route>
 
           {/* Publicly Accessible Landing Index */}

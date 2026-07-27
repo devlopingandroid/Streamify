@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { login, logout, clearAuth } from "../store/authSlice";
-import { loginApi, registerApi, logoutApi } from "../services/auth.api";
+import { loginApi, registerApi, logoutApi, forgotPasswordApi, resetPasswordApi } from "../services/auth.api";
 import { getCurrentUserApi } from "../services/user.api";
 
 /**
@@ -89,3 +89,22 @@ export const useLogout = () => {
     },
   });
 };
+
+/**
+ * Hook to request password reset link via email.
+ */
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: forgotPasswordApi,
+  });
+};
+
+/**
+ * Hook to reset password using token.
+ */
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: resetPasswordApi,
+  });
+};
+

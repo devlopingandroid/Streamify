@@ -23,3 +23,14 @@ export const refreshTokenApi = async () => {
   const response = await apiClient.post("/users/refresh-token");
   return response.data;
 };
+
+export const forgotPasswordApi = async (email) => {
+  const response = await apiClient.post("/users/forgot-password", { email });
+  return response.data;
+};
+
+export const resetPasswordApi = async ({ token, password }) => {
+  const response = await apiClient.post(`/users/reset-password/${token}`, { password });
+  return response.data;
+};
+
