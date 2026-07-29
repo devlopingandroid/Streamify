@@ -17,9 +17,13 @@ export const VideoCard = ({ video, layout = "grid" }) => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
 
+  if (!video) return null;
+
+  const videoId = video._id || video.id;
+
   // Ownership check
-  const ownerId = video.owner?._id || video.owner;
-  const isOwner = user && ownerId && user._id === ownerId;
+  const ownerId = video.owner?._id || video.owner?.id || video.owner;
+  const isOwner = user && ownerId && (user._id === ownerId || user.id === ownerId);
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -31,23 +35,34 @@ export const VideoCard = ({ video, layout = "grid" }) => {
     isToggling: isWatchLaterToggling,
     togglingVideoId
   } = useWatchLater();
-  const isWatchLater = watchLaterVideos?.some((v) => (v._id || v) === video._id);
-  const isWatchLaterPending = isWatchLaterToggling && (togglingVideoId === video._id);
+  const isWatchLater = watchLaterVideos?.some((v) => (v._id || v.id || v) === videoId);
+  const isWatchLaterPending = isWatchLaterToggling && (togglingVideoId === videoId);
 
   const deleteMutation = useDeleteVideo();
   const toggleStatusMutation = useToggleVideoStatus();
 
   const handleDeleteConfirm = () => {
-    deleteMutation.mutate(video._id, {
+    if (!videoId) return;
+    deleteMutation.mutate(videoId, {
       onSuccess: () => {
         setConfirmDeleteOpen(false);
       },
     });
   };
 
+  const handleCardClick = (e) => {
+    // If target click was inside interactive links or action buttons, do not double trigger
+    if (e.target.closest("button") || e.target.closest("a")) {
+      return;
+    }
+    if (videoId) {
+      navigate(`/watch/${videoId}`);
+    }
+  };
+
   return (
     <div
-      onClick={() => navigate(`/watch/${video._id}`)}
+      onClick={handleCardClick}
       className={`flex rounded-xl border border-[#E2E8F0] bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group overflow-hidden relative cursor-pointer ${
         isList ? "flex-col sm:flex-row gap-6 p-5" : "flex-col gap-3.5 p-5"
       }`}
@@ -84,7 +99,7 @@ export const VideoCard = ({ video, layout = "grid" }) => {
                 onClick={(e) => e.stopPropagation()} // Prevent card navigation
               >
                 <Link
-                  to={`/edit-video/${video._id}`}
+                  to={`/edit-video/${videoId}`}
                   onClick={() => setMenuOpen(false)}
                   className="w-full text-left px-2 py-1.5 rounded text-[10px] font-semibold text-[#334155] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors block"
                 >
@@ -106,7 +121,7 @@ export const VideoCard = ({ video, layout = "grid" }) => {
                   onClick={(e) => {
                     e.preventDefault();
                     setMenuOpen(false);
-                    toggleStatusMutation.mutate(video._id);
+                    toggleStatusMutation.mutate(videoId);
                   }}
                   disabled={toggleStatusMutation.isPending}
                   className="w-full text-left px-2 py-1.5 rounded text-[10px] font-semibold text-[#334155] hover:bg-[#F1F5F9] hover:text-[#0F172A] transition-colors disabled:opacity-50 cursor-pointer"
@@ -139,7 +154,7 @@ export const VideoCard = ({ video, layout = "grid" }) => {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              toggleWatchLater({ videoId: video._id, video });
+              toggleWatchLater({ videoId, video });
             }}
             disabled={isWatchLaterPending}
             className="w-7 h-7 rounded-full bg-white hover:bg-[#F1F5F9] border border-[#E2E8F0] flex items-center justify-center text-[#334155] hover:text-[#0F172A] transition-all shadow-sm cursor-pointer focus:outline-none disabled:opacity-50"
@@ -156,19 +171,23 @@ export const VideoCard = ({ video, layout = "grid" }) => {
       )}
 
       {/* Thumbnail Trigger */}
-      <div className={`block w-full ${isList ? "sm:w-[240px] flex-shrink-0" : ""}`}>
+      <Link
+        to={`/watch/${videoId}`}
+        className={`block w-full ${isList ? "sm:w-[240px] flex-shrink-0" : ""}`}
+        aria-label={`Play video: ${video.title}`}
+      >
         <VideoThumbnail
           src={video.thumbnail}
           alt={video.title}
           duration={video.duration}
         />
-      </div>
+      </Link>
 
       {/* Detail Metadata Box */}
       <div className={`flex gap-3 ${isList ? "sm:p-0 flex-grow" : "flex-grow px-1 py-0.5"}`}>
         {!isList && (
           <Link 
-            to={video.owner?.username ? `/c/${video.owner.username}` : `/watch/${video._id}`} 
+            to={video.owner?.username ? `/c/${video.owner.username}` : `/watch/${videoId}`} 
             onClick={(e) => e.stopPropagation()} 
             className="flex-shrink-0"
           >
@@ -177,12 +196,14 @@ export const VideoCard = ({ video, layout = "grid" }) => {
         )}
 
         <div className="flex flex-col gap-1 flex-grow min-w-0">
-          <h3 className="text-xs font-semibold text-[#0F172A] hover:text-[#334155] transition-colors leading-relaxed line-clamp-2">
-            {video.title}
-          </h3>
+          <Link to={`/watch/${videoId}`}>
+            <h3 className="text-xs font-semibold text-[#0F172A] hover:text-[#334155] transition-colors leading-relaxed line-clamp-2">
+              {video.title}
+            </h3>
+          </Link>
 
           <Link
-            to={video.owner?.username ? `/c/${video.owner.username}` : `/watch/${video._id}`}
+            to={video.owner?.username ? `/c/${video.owner.username}` : `/watch/${videoId}`}
             onClick={(e) => e.stopPropagation()}
             className="text-[10px] text-[#64748B] hover:text-[#0F172A] font-medium transition-colors select-none w-fit"
           >

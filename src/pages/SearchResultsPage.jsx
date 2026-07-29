@@ -107,8 +107,8 @@ export const SearchResultsPage = () => {
         />
       ) : (
         <VideoGrid className={layout === "list" ? "grid-cols-1!" : ""}>
-          {sortedVideos.map((video) => (
-            <VideoCard key={video._id} video={video} layout={layout} />
+          {sortedVideos.map((video, idx) => (
+            <VideoCard key={video._id || video.id || `search-vid-${idx}`} video={video} layout={layout} />
           ))}
         </VideoGrid>
       )}

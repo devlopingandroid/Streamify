@@ -122,22 +122,26 @@ const TopNavbar = ({
   const debouncedSearch = useDebounce(searchValue, 300);
   const inputRef = React.useRef(null);
 
+  // Synchronize search input state when URL query parameter changes (e.g., Back/Forward navigation)
   useEffect(() => {
     setSearchValue(urlQuery);
   }, [urlQuery]);
 
+  // Synchronize debounced search input with navigation/URL
   useEffect(() => {
+    const trimmedInput = searchValue.trim();
     const trimmedDebounced = debouncedSearch.trim();
     const trimmedUrl = urlQuery.trim();
 
-    if (trimmedDebounced !== trimmedUrl) {
+    // Only sync navigation if debounced value matches current input state
+    if (trimmedInput === trimmedDebounced && trimmedDebounced !== trimmedUrl) {
       if (trimmedDebounced) {
         navigate(`/search?q=${encodeURIComponent(trimmedDebounced)}`);
-      } else if (location.pathname === "/search") {
+      } else if (location.pathname === "/search" && trimmedUrl) {
         navigate("/search");
       }
     }
-  }, [debouncedSearch, urlQuery, location.pathname, navigate]);
+  }, [debouncedSearch, searchValue, urlQuery, location.pathname, navigate]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
