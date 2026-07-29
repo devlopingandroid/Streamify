@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { MoreVertical, Bookmark, Loader2 } from "lucide-react";
 import { VideoThumbnail } from "./VideoThumbnail";
@@ -14,6 +14,7 @@ import { truncateText } from "../../utils";
 
 export const VideoCard = ({ video, layout = "grid" }) => {
   const isList = layout === "list";
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
 
   // Ownership check
@@ -46,7 +47,8 @@ export const VideoCard = ({ video, layout = "grid" }) => {
 
   return (
     <div
-      className={`flex rounded-xl border border-[#E2E8F0] bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group overflow-hidden relative ${
+      onClick={() => navigate(`/watch/${video._id}`)}
+      className={`flex rounded-xl border border-[#E2E8F0] bg-white shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group overflow-hidden relative cursor-pointer ${
         isList ? "flex-col sm:flex-row gap-6 p-5" : "flex-col gap-3.5 p-5"
       }`}
     >
@@ -154,36 +156,38 @@ export const VideoCard = ({ video, layout = "grid" }) => {
       )}
 
       {/* Thumbnail Trigger */}
-      <Link
-        to={`/watch/${video._id}`}
-        className={`block w-full ${isList ? "sm:w-[240px] flex-shrink-0" : ""}`}
-        aria-label={`Play video: ${video.title}`}
-      >
+      <div className={`block w-full ${isList ? "sm:w-[240px] flex-shrink-0" : ""}`}>
         <VideoThumbnail
           src={video.thumbnail}
           alt={video.title}
           duration={video.duration}
         />
-      </Link>
+      </div>
 
       {/* Detail Metadata Box */}
       <div className={`flex gap-3 ${isList ? "sm:p-0 flex-grow" : "flex-grow px-1 py-0.5"}`}>
         {!isList && (
-          <Link to={`/landing`} className="flex-shrink-0">
+          <Link 
+            to={video.owner?.username ? `/c/${video.owner.username}` : `/watch/${video._id}`} 
+            onClick={(e) => e.stopPropagation()} 
+            className="flex-shrink-0"
+          >
             <Avatar src={video.owner?.avatar} name={video.owner?.fullname || "User"} size="sm" />
           </Link>
         )}
 
         <div className="flex flex-col gap-1 flex-grow min-w-0">
-          <Link to={`/watch/${video._id}`}>
-            <h3 className="text-xs font-semibold text-[#0F172A] hover:text-[#334155] transition-colors leading-relaxed line-clamp-2">
-              {video.title}
-            </h3>
-          </Link>
+          <h3 className="text-xs font-semibold text-[#0F172A] hover:text-[#334155] transition-colors leading-relaxed line-clamp-2">
+            {video.title}
+          </h3>
 
-          <span className="text-[10px] text-[#64748B] font-medium select-none">
+          <Link
+            to={video.owner?.username ? `/c/${video.owner.username}` : `/watch/${video._id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="text-[10px] text-[#64748B] hover:text-[#0F172A] font-medium transition-colors select-none w-fit"
+          >
             {video.owner?.fullname || "User"}
-          </span>
+          </Link>
 
           <VideoMeta views={video.views} createdAt={video.createdAt} />
 

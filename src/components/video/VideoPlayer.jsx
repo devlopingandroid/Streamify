@@ -6,7 +6,8 @@ import {
   VolumeX, 
   Maximize, 
   Minimize,
-  Loader2
+  Loader2,
+  AlertCircle
 } from "lucide-react";
 import { formatDuration } from "../../utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -20,6 +21,8 @@ export const VideoPlayer = ({ src, poster, videoId, resumePosition }) => {
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isWaiting, setIsWaiting] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showControls, setShowControls] = useState(true);
 
@@ -71,17 +74,33 @@ export const VideoPlayer = ({ src, poster, videoId, resumePosition }) => {
     if (!videoRef.current) return;
     if (isPlaying) {
       videoRef.current.pause();
+      setIsPlaying(false);
     } else {
-      videoRef.current.play().catch(() => {});
+      videoRef.current.play().then(() => {
+        setIsPlaying(true);
+        setHasError(false);
+      }).catch((err) => {
+        console.error("Playback error:", err);
+        setIsPlaying(false);
+      });
     }
-    setIsPlaying(!isPlaying);
   };
 
-  // Reset seek and track states when videoId changes
+  const handleVideoError = () => {
+    setIsWaiting(false);
+    setIsPlaying(false);
+    setHasError(true);
+    setErrorMessage("Unable to stream video file. The media source may be invalid or unreachable.");
+  };
+
+  // Reset seek and track states when videoId or src changes
   useEffect(() => {
+    setHasError(false);
+    setErrorMessage("");
+    setIsPlaying(false);
     resumeAppliedRef.current = false;
     lastRecordedTimeRef.current = -1;
-  }, [videoId]);
+  }, [videoId, src]);
 
   // Periodically record progress every 10 seconds while playing
   useEffect(() => {
@@ -248,16 +267,64 @@ export const VideoPlayer = ({ src, poster, videoId, resumePosition }) => {
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onWaiting={() => setIsWaiting(true)}
-        onPlaying={() => setIsWaiting(false)}
-        onPause={() => saveProgress(true)}
-        onEnded={() => saveProgress(true)}
+        onPlaying={() => {
+          setIsWaiting(false);
+          setIsPlaying(true);
+        }}
+        onPause={() => {
+          setIsPlaying(false);
+          saveProgress(true);
+        }}
+        onEnded={() => {
+          setIsPlaying(false);
+          saveProgress(true);
+        }}
+        onError={handleVideoError}
+        playsInline
+        crossOrigin="anonymous"
         className="w-full h-full object-contain cursor-pointer"
       />
 
+      {/* Center Play Button Overlay when paused and not waiting */}
+      {!isPlaying && !isWaiting && !hasError && (
+        <button
+          type="button"
+          onClick={togglePlay}
+          className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-black/40 transition-colors z-10 group/centerbtn cursor-pointer"
+          aria-label="Play video"
+        >
+          <div className="w-16 h-16 rounded-full bg-black/60 border border-white/30 flex items-center justify-center text-white group-hover/centerbtn:scale-110 group-hover/centerbtn:bg-blue-600 transition-all shadow-xl">
+            <Play size={28} fill="currentColor" className="ml-1" />
+          </div>
+        </button>
+      )}
+
       {/* Loading Spinner for Buffer State */}
-      {isWaiting && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-[2px] pointer-events-none">
-          <Loader2 className="w-10 h-10 text-brand-cyan animate-spin" />
+      {isWaiting && !hasError && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] pointer-events-none z-10">
+          <Loader2 className="w-10 h-10 text-white animate-spin" />
+        </div>
+      )}
+
+      {/* Error State Overlay */}
+      {hasError && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 p-6 text-center z-20">
+          <AlertCircle className="w-12 h-12 text-red-500 mb-3" />
+          <h3 className="text-white text-sm font-bold mb-1">Playback Error</h3>
+          <p className="text-slate-300 text-xs max-w-md mb-4">{errorMessage}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setHasError(false);
+              if (videoRef.current) {
+                videoRef.current.load();
+                videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+              }
+            }}
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-full transition-colors cursor-pointer"
+          >
+            Retry Playback
+          </button>
         </div>
       )}
 
