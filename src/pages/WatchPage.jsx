@@ -58,14 +58,20 @@ export const WatchPage = () => {
   } = useSimilarVideos(videoId, 10);
   const { data: likesInfo, toggleLike, isToggling } = useVideoLikes(videoId);
 
+  // Owner info extraction
+  const ownerId = typeof video?.owner === "object" ? video?.owner?._id : video?.owner;
+  const ownerUsername = typeof video?.owner === "object" ? video?.owner?.username : null;
+  const ownerFullname = typeof video?.owner === "object" ? (video?.owner?.fullname || "User") : "User";
+  const ownerAvatar = typeof video?.owner === "object" ? video?.owner?.avatar : null;
+
   // Subscription Hook Integration
   const { 
     subscribed: isSubscribed, 
     toggleSubscription, 
     isToggling: isSubscribing 
-  } = useSubscription(video?.owner?._id);
+  } = useSubscription(ownerId);
 
-  const isOwnVideo = currentUser?._id === video?.owner?._id;
+  const isOwnVideo = currentUser?._id && ownerId && currentUser._id === ownerId;
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -112,16 +118,24 @@ export const WatchPage = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-3 pb-6 border-b border-slate-800/60">
             {/* Owner channel details */}
             <div className="flex items-center gap-4">
-              <Link to={`/c/${video.owner.username}`}>
-                <Avatar src={video.owner.avatar} name={video.owner.fullname} size="lg" />
-              </Link>
-              <div className="flex flex-col">
-                <Link to={`/c/${video.owner.username}`} className="font-semibold text-[#374151] hover:text-brand-cyan transition-colors text-xs">
-                  {video.owner.fullname}
+              {ownerUsername ? (
+                <Link to={`/c/${ownerUsername}`}>
+                  <Avatar src={ownerAvatar} name={ownerFullname} size="lg" />
                 </Link>
-                <span className="text-[10px] text-[#6B7280] mt-0.5">@{video.owner.username}</span>
+              ) : (
+                <Avatar src={ownerAvatar} name={ownerFullname} size="lg" />
+              )}
+              <div className="flex flex-col">
+                {ownerUsername ? (
+                  <Link to={`/c/${ownerUsername}`} className="font-semibold text-[#374151] hover:text-brand-cyan transition-colors text-xs">
+                    {ownerFullname}
+                  </Link>
+                ) : (
+                  <span className="font-semibold text-[#374151] text-xs">{ownerFullname}</span>
+                )}
+                {ownerUsername && <span className="text-[10px] text-[#6B7280] mt-0.5">@{ownerUsername}</span>}
               </div>
-              {!isOwnVideo && (
+              {!isOwnVideo && ownerId && (
                 <Button 
                   variant={isSubscribed ? "outline" : "solid"} 
                   size="sm" 
