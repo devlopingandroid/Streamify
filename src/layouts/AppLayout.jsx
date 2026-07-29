@@ -133,12 +133,14 @@ const TopNavbar = ({
     const trimmedDebounced = debouncedSearch.trim();
     const trimmedUrl = urlQuery.trim();
 
-    // Only sync navigation if debounced value matches current input state
-    if (trimmedInput === trimmedDebounced && trimmedDebounced !== trimmedUrl) {
-      if (trimmedDebounced) {
-        navigate(`/search?q=${encodeURIComponent(trimmedDebounced)}`);
-      } else if (location.pathname === "/search" && trimmedUrl) {
-        navigate("/search");
+    // Only sync auto-search navigation when currently on the /search page
+    if (location.pathname === "/search") {
+      if (trimmedInput === trimmedDebounced && trimmedDebounced !== trimmedUrl) {
+        if (trimmedDebounced) {
+          navigate(`/search?q=${encodeURIComponent(trimmedDebounced)}`, { replace: true });
+        } else if (trimmedUrl) {
+          navigate("/search", { replace: true });
+        }
       }
     }
   }, [debouncedSearch, searchValue, urlQuery, location.pathname, navigate]);
