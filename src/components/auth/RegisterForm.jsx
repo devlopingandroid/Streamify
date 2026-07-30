@@ -146,8 +146,8 @@ export const RegisterForm = () => {
 
     registerMutation.mutate(formData, {
       onSuccess: () => {
-        toast.success("Account registered successfully! Please sign in.");
-        navigate("/login");
+        toast.success("Account created successfully! Please verify your email address.");
+        navigate("/verify-email-pending", { state: { email: data.email } });
       },
       onError: (err) => {
         toast.error(err?.message || "Registration failed. Please check inputs.");

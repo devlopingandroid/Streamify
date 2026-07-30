@@ -1,7 +1,15 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useDispatch, useSelector } from "react-redux";
 import { login, logout, clearAuth } from "../store/authSlice";
-import { loginApi, registerApi, logoutApi, forgotPasswordApi, resetPasswordApi } from "../services/auth.api";
+import { 
+  loginApi, 
+  registerApi, 
+  logoutApi, 
+  forgotPasswordApi, 
+  resetPasswordApi,
+  verifyEmailApi,
+  resendVerificationApi 
+} from "../services/auth.api";
 import { getCurrentUserApi } from "../services/user.api";
 
 /**
@@ -107,4 +115,28 @@ export const useResetPassword = () => {
     mutationFn: resetPasswordApi,
   });
 };
+
+/**
+ * Hook to verify email address with token.
+ */
+export const useVerifyEmail = (token, options = {}) => {
+  return useQuery({
+    queryKey: ["verifyEmail", token],
+    queryFn: () => verifyEmailApi(token),
+    enabled: !!token,
+    retry: false,
+    refetchOnWindowFocus: false,
+    ...options,
+  });
+};
+
+/**
+ * Hook to request resending email verification link.
+ */
+export const useResendVerification = () => {
+  return useMutation({
+    mutationFn: resendVerificationApi,
+  });
+};
+
 

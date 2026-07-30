@@ -34,3 +34,17 @@ export const resetPasswordApi = async ({ token, password }) => {
   return response.data;
 };
 
+export const verifyEmailApi = async (token) => {
+  const response = await apiClient.get(`/users/verify-email/${token}`);
+  return response.data;
+};
+
+export const resendVerificationApi = async (payload) => {
+  const body = typeof payload === "string" 
+    ? (payload.includes("@") ? { email: payload } : { username: payload }) 
+    : payload;
+  const response = await apiClient.post("/users/resend-verification", body);
+  return response.data;
+};
+
+
