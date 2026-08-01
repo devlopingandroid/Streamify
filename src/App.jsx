@@ -4,6 +4,7 @@ import { useCurrentUser } from "./hooks/useAuth";
 import { initializeTheme } from "./store/uiSlice";
 import { AppRoutes } from "./routes/AppRoutes";
 import { Toaster } from "react-hot-toast";
+import { ToastNotification } from "./components/ui/ToastNotification";
 import "./styles/index.css";
 
 export const App = () => {
@@ -20,15 +21,15 @@ export const App = () => {
     <>
       <AppRoutes />
       <Toaster
-        position="bottom-right"
-        toastOptions={{
-          className: "glassmorphism border border-slate-800 text-slate-100 text-xs rounded-lg p-4 shadow-2xl",
-          style: {
-            background: "var(--color-dark-card)",
-            color: "var(--color-slate-100)",
-          },
+        position="top-right"
+        containerStyle={{
+          top: 84,
+          right: 16,
+          zIndex: 99999,
         }}
-      />
+      >
+        {(t) => <ToastNotification t={t} />}
+      </Toaster>
     </>
   );
 };
