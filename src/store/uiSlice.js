@@ -1,5 +1,26 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+const applyThemeDOM = (theme) => {
+  if (typeof window === "undefined") return;
+  const root = window.document.documentElement;
+  let isDark = false;
+  
+  if (theme === "system") {
+    isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  } else {
+    isDark = theme === "dark";
+  }
+
+  root.setAttribute("data-theme", isDark ? "dark" : "light");
+  if (isDark) {
+    root.classList.add("dark");
+    root.classList.remove("light");
+  } else {
+    root.classList.add("light");
+    root.classList.remove("dark");
+  }
+};
+
 const initialState = {
   theme: localStorage.getItem("streamify-theme") || "dark",
   sidebarExpanded: true,
@@ -19,25 +40,10 @@ const uiSlice = createSlice({
       const theme = action.payload;
       state.theme = theme;
       localStorage.setItem("streamify-theme", theme);
-      
-      const root = window.document.documentElement;
-      root.removeAttribute("data-theme");
-      if (theme === "system") {
-        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        root.setAttribute("data-theme", systemTheme);
-      } else {
-        root.setAttribute("data-theme", theme);
-      }
+      applyThemeDOM(theme);
     },
     initializeTheme: (state) => {
-      const root = window.document.documentElement;
-      root.removeAttribute("data-theme");
-      if (state.theme === "system") {
-        const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-        root.setAttribute("data-theme", systemTheme);
-      } else {
-        root.setAttribute("data-theme", state.theme);
-      }
+      applyThemeDOM(state.theme);
     }
   },
 });
