@@ -89,23 +89,23 @@ export const NotificationsPage = () => {
   }
 
   // Flatten notifications if "All" is active, otherwise use direct unread list
-  const allNotifications = allData?.pages?.flatMap((page) => page.notifications || []) || [];
+  const allNotifications = allData?.pages?.flatMap((page) => page?.notifications || (Array.isArray(page) ? page : [])) || [];
   const displayNotifications = activeTab === "all" ? allNotifications : unreadNotifications;
   
-  const hasUnread = unreadNotifications.length > 0;
+  const hasUnread = Array.isArray(unreadNotifications) && unreadNotifications.length > 0;
   const hasAny = allNotifications.length > 0;
 
   return (
-    <div className="p-6 md:p-8 flex flex-col gap-6 text-slate-100 select-none animate-fade-in max-w-[800px] mx-auto">
+    <div className="p-6 md:p-8 flex flex-col gap-6 text-slate-900 dark:text-slate-100 select-none animate-fade-in max-w-[800px] mx-auto">
       
       {/* Header Panel */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-800/60">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200 dark:border-slate-800/60">
         <div>
-          <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-            <Bell size={20} className="text-slate-400" />
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <Bell size={20} className="text-slate-700 dark:text-slate-400" />
             <span>Alerts & Notifications</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">Stay updated with channel activity, comments, and likes.</p>
+          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Stay updated with channel activity, comments, and likes.</p>
         </div>
 
         {/* Global batch actions */}
@@ -115,18 +115,18 @@ export const NotificationsPage = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-1.5 rounded-full border-slate-800 hover:bg-slate-800 text-slate-300 text-xs"
+                className="gap-1.5 rounded-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-semibold shadow-xs"
                 onClick={handleMarkAllRead}
                 disabled={markAllReadMutation.isPending}
               >
-                <Check size={13} />
+                <Check size={13} className="text-slate-700 dark:text-slate-300" />
                 <span>Mark all read</span>
               </Button>
             )}
             <Button
               variant="outline"
               size="sm"
-              className="gap-1.5 border-red-500/30 hover:bg-red-500/10 text-red-400 rounded-full text-xs"
+              className="gap-1.5 border-red-300 dark:border-red-500/30 bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-500/10 text-red-600 dark:text-red-400 rounded-full text-xs font-semibold shadow-xs"
               onClick={handleClearAll}
               disabled={clearNotificationsMutation.isPending}
             >
@@ -138,13 +138,13 @@ export const NotificationsPage = () => {
       </div>
 
       {/* Tabs Filter Bar */}
-      <div className="flex items-center gap-2 bg-slate-900/60 border border-slate-800/80 p-1 rounded-xl self-start">
+      <div className="flex items-center gap-1.5 bg-slate-200/80 dark:bg-slate-900/60 border border-slate-300/80 dark:border-slate-800/80 p-1 rounded-xl self-start">
         <button
           onClick={() => setActiveTab("all")}
           className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 cursor-pointer ${
             activeTab === "all"
-              ? "bg-slate-800 text-brand-cyan shadow-md"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-slate-900 text-white dark:bg-slate-800 dark:text-cyan-400 shadow-sm"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
           }`}
         >
           All
@@ -153,13 +153,13 @@ export const NotificationsPage = () => {
           onClick={() => setActiveTab("unread")}
           className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
             activeTab === "unread"
-              ? "bg-slate-800 text-brand-cyan shadow-md"
-              : "text-slate-400 hover:text-slate-200"
+              ? "bg-slate-900 text-white dark:bg-slate-800 dark:text-cyan-400 shadow-sm"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
           }`}
         >
           <span>Unread</span>
           {hasUnread && (
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-cyan shadow-lg shadow-brand-cyan/50" />
+            <span className="w-2 h-2 rounded-full bg-cyan-500 shadow-xs" />
           )}
         </button>
       </div>
@@ -182,7 +182,7 @@ export const NotificationsPage = () => {
 
           {/* Intersection Observer anchor */}
           {activeTab === "all" && (
-            <div ref={observerTarget} className="h-10 w-full flex items-center justify-center text-2xs text-slate-500">
+            <div ref={observerTarget} className="h-10 w-full flex items-center justify-center text-xs font-medium text-slate-500 dark:text-slate-400">
               {isFetchingNextPage && "Loading more alerts..."}
               {!hasNextPage && allNotifications.length > 0 && "You've read all alerts!"}
             </div>

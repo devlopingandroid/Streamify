@@ -35,7 +35,7 @@ export const useUnreadNotifications = () => {
     queryKey: ["unreadNotifications"],
     queryFn: async () => {
       const response = await getUnreadNotificationsApi();
-      return response?.data || [];
+      return response?.data?.notifications || (Array.isArray(response?.data) ? response.data : []);
     },
   });
 };
