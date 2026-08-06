@@ -17,38 +17,37 @@ export const AnalyticsHeader = memo(({
     { label: "Last Year", value: "yearly" },
   ];
 
-  // Helper to format date nicely
   const formatLastUpdated = (date) => {
     if (!date) return "Never";
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
   };
 
   return (
-    <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-800/60 mb-6 select-none" aria-label="Dashboard Header Controls">
+    <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-slate-800 mb-6 select-none" aria-label="Dashboard Header Controls">
       <div>
-        <h1 className="text-xl font-bold tracking-tight text-slate-100 sm:text-2xl">
+        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
           Creator Analytics
         </h1>
-        <p className="text-[11px] text-slate-500 mt-1 flex items-center gap-1.5" aria-live="polite">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          Last updated: {formatLastUpdated(lastUpdated)}
+        <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 flex items-center gap-2" aria-live="polite">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span>Last updated: {formatLastUpdated(lastUpdated)}</span>
         </p>
       </div>
 
-      <div className="flex items-center gap-2 flex-wrap sm:justify-end">
+      <div className="flex items-center gap-3 flex-wrap sm:justify-end">
         {/* Date Filter selector */}
-        <div className="relative flex items-center bg-slate-900 border border-slate-800 rounded-lg px-2.5 h-10 text-slate-300 hover:border-slate-700 focus-within:border-brand-cyan transition-all">
-          <Calendar size={15} className="text-slate-500 mr-2 flex-shrink-0" />
+        <div className="relative flex items-center bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 rounded-full px-3 h-10 text-slate-800 dark:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700 shadow-xs transition-all">
+          <Calendar size={15} className="text-slate-500 dark:text-slate-400 mr-2 flex-shrink-0" />
           <label htmlFor="period-select" className="sr-only">Choose time period</label>
           <select
             id="period-select"
             value={period}
             onChange={(e) => onPeriodChange(e.target.value)}
-            className="bg-transparent text-xs font-medium text-slate-200 border-none outline-none pr-6 cursor-pointer focus:ring-0 focus:outline-none"
+            className="bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-200 border-none outline-none pr-6 cursor-pointer focus:ring-0 focus:outline-none"
             aria-label="Filter analytics by time period"
           >
             {filterOptions.map((opt) => (
-              <option key={opt.value} value={opt.value} className="bg-slate-900 text-slate-200">
+              <option key={opt.value} value={opt.value} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200">
                 {opt.label}
               </option>
             ))}
@@ -60,11 +59,11 @@ export const AnalyticsHeader = memo(({
           variant="outline"
           onClick={onRefresh}
           isLoading={isRefreshing}
-          className="h-10 text-xs font-semibold px-3 gap-1.5 select-none"
+          className="h-10 text-xs font-semibold px-4 gap-1.5 rounded-full shadow-xs select-none"
           title="Refresh analytics details"
           aria-label="Refresh analytics data"
         >
-          {!isRefreshing && <RefreshCw size={14} className="text-slate-400" />}
+          {!isRefreshing && <RefreshCw size={14} className="text-slate-500 dark:text-slate-400" />}
           <span>Refresh</span>
         </Button>
 
@@ -72,11 +71,11 @@ export const AnalyticsHeader = memo(({
         <Button
           variant="solid"
           onClick={onExportCSV}
-          className="h-10 text-xs font-semibold px-3 gap-1.5 select-none"
+          className="h-10 text-xs font-semibold px-4 gap-1.5 rounded-full shadow-xs select-none"
           title="Export statistics summary to CSV"
           aria-label="Export report to CSV"
         >
-          <Download size={14} className="text-slate-950" />
+          <Download size={14} />
           <span>Export CSV</span>
         </Button>
       </div>

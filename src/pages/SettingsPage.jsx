@@ -54,12 +54,12 @@ export const SettingsPage = () => {
   const [activeTab, setActiveTab] = useState("account");
 
   return (
-    <div className="max-w-[1000px] mx-auto p-6 md:p-12 animate-fade-in text-slate-200 select-none">
-      <h1 className="text-2xl font-bold text-slate-100 mb-1">Account Settings</h1>
-      <p className="text-xs text-slate-400 mb-8">Configure your corporate credentials, session passwords, and channels identity.</p>
+    <div className="max-w-[1000px] mx-auto p-4 sm:p-6 md:p-8 animate-fade-in text-slate-900 dark:text-slate-100 select-none">
+      <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">Account Settings</h1>
+      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mb-6">Configure your credentials, passwords, theme, and channel identity.</p>
 
       {/* Tabs Row */}
-      <div className="flex border-b border-slate-800/80 mb-8 overflow-x-auto">
+      <div className="flex border-b border-slate-200 dark:border-slate-800 mb-8 overflow-x-auto scrollbar-none whitespace-nowrap">
         {[
           { id: "account", label: "Account Details", icon: User },
           { id: "security", label: "Security & Keys", icon: ShieldAlert },
@@ -70,13 +70,14 @@ export const SettingsPage = () => {
           return (
             <button
               key={tab.id}
-              className={`flex items-center gap-2 px-5 py-4 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all whitespace-nowrap cursor-pointer ${activeTab === tab.id
-                ? "border-brand-cyan text-brand-cyan"
-                : "border-transparent text-slate-500 hover:text-slate-300"
-                }`}
+              className={`flex items-center gap-2 px-5 py-3.5 text-xs font-bold uppercase tracking-wider border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+                activeTab === tab.id
+                  ? "border-cyan-500 text-cyan-600 dark:text-cyan-400"
+                  : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
+              }`}
               onClick={() => setActiveTab(tab.id)}
             >
-              <Icon size={14} />
+              <Icon size={15} />
               <span>{tab.label}</span>
             </button>
           );
@@ -125,10 +126,10 @@ const AccountTab = ({ user }) => {
   const isPending = updateAccountMutation.isPending;
 
   return (
-    <section className="rounded-xl border border-slate-800/40 bg-slate-900/10 p-6 max-w-xl text-left">
-      <h2 className="text-sm font-semibold text-slate-200 mb-2">Profile details</h2>
-      <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-        Modify the primary naming parameters and contact address.
+    <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0F172A]/80 p-6 md:p-8 max-w-xl text-left shadow-xs">
+      <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Profile Details</h2>
+      <p className="text-xs text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+        Modify your primary naming parameters and contact address.
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
@@ -156,7 +157,7 @@ const AccountTab = ({ user }) => {
           readOnly
         />
 
-        <Button type="submit" isLoading={isPending} className="w-full mt-2">
+        <Button type="submit" isLoading={isPending} className="w-full mt-3 rounded-full shadow-xs">
           Save Details
         </Button>
       </form>
@@ -200,45 +201,48 @@ const SecurityTab = () => {
   const strengthScore = getPasswordStrength(watchedPassword);
 
   const getStrengthMeta = (score) => {
-    if (score === 0) return { label: "", color: "bg-transparent", text: "text-transparent" };
-    if (score <= 33) return { label: "Weak", color: "bg-red-500", text: "text-red-400" };
-    if (score <= 66) return { label: "Fair", color: "bg-amber-500", text: "text-amber-400" };
-    return { label: "Strong", color: "bg-emerald-500", text: "text-emerald-400" };
+    if (score < 34) return { label: "Weak", color: "bg-rose-500", text: "text-rose-500" };
+    if (score < 67) return { label: "Medium", color: "bg-amber-500", text: "text-amber-500" };
+    return { label: "Strong", color: "bg-emerald-500", text: "text-emerald-500" };
   };
 
   const strengthMeta = getStrengthMeta(strengthScore);
 
   const onSubmit = (data) => {
-    changePasswordMutation.mutate(data, {
-      onSuccess: () => {
-        toast.success("Password changed successfully.");
-        reset();
-      },
-      onError: (err) => {
-        toast.error(err?.message || "Failed to update security credentials.");
-      },
-    });
+    changePasswordMutation.mutate(
+      { oldPassword: data.oldPassword, newPassword: data.newPassword },
+      {
+        onSuccess: () => {
+          toast.success("Password changed successfully.");
+          reset();
+        },
+        onError: (err) => {
+          toast.error(err?.message || "Failed to change password.");
+        },
+      }
+    );
   };
 
   const isPending = changePasswordMutation.isPending;
 
   return (
-    <section className="rounded-xl border border-slate-800/40 bg-slate-900/10 p-6 max-w-xl text-left">
-      <h2 className="text-sm font-semibold text-slate-200 mb-2">Modify Password</h2>
-      <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-        Ensure your new passphrase incorporates mixed character blocks.
+    <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0F172A]/80 p-6 md:p-8 max-w-xl text-left shadow-xs">
+      <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Security & Passwords</h2>
+      <p className="text-xs text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+        Update your authentication key and session password credentials.
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <InputField
           label="Current Password"
           type="password"
+          placeholder="••••••••"
           error={errors.oldPassword?.message}
           disabled={isPending}
           {...register("oldPassword")}
         />
 
-        <div className="relative w-full">
+        <div className="relative">
           <InputField
             label="New Password"
             type={showPwd ? "text" : "password"}
@@ -250,7 +254,7 @@ const SecurityTab = () => {
           <button
             type="button"
             onClick={() => setShowPwd(!showPwd)}
-            className="absolute right-3 top-[34px] text-slate-500 hover:text-slate-200 cursor-pointer"
+            className="absolute right-3 top-[34px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-1"
             disabled={isPending}
           >
             {showPwd ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -261,10 +265,10 @@ const SecurityTab = () => {
         {watchedPassword && (
           <div className="flex flex-col gap-1 mt-0.5">
             <div className="flex justify-between items-center text-[10px] font-semibold">
-              <span className="text-slate-400">Password Strength</span>
+              <span className="text-slate-500 dark:text-slate-400">Password Strength</span>
               <span className={strengthMeta.text}>{strengthMeta.label}</span>
             </div>
-            <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
+            <div className="w-full h-1 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
               <div className={`h-full ${strengthMeta.color} transition-all duration-300`} style={{ width: `${strengthScore}%` }} />
             </div>
           </div>
@@ -279,7 +283,7 @@ const SecurityTab = () => {
           {...register("confirmPassword")}
         />
 
-        <Button type="submit" isLoading={isPending} className="w-full mt-2">
+        <Button type="submit" isLoading={isPending} className="w-full mt-3 rounded-full shadow-xs">
           Update Password
         </Button>
       </form>
@@ -288,17 +292,17 @@ const SecurityTab = () => {
 };
 
 // ==========================================
-// Sub Tab Component: AppearanceTab (Placeholder)
+// Sub Tab Component: AppearanceTab
 // ==========================================
 const AppearanceTab = () => {
   return (
-    <section className="rounded-xl border border-slate-800/40 bg-slate-900/10 p-6 max-w-xl text-left">
-      <h2 className="text-sm font-semibold text-slate-200 mb-2">Workspace Theme</h2>
-      <p className="text-xs text-slate-500 mb-6 leading-relaxed">
-        Customize background schemes and canvas visibility triggers.
+    <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0F172A]/80 p-6 md:p-8 max-w-xl text-left shadow-xs">
+      <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Workspace Theme</h2>
+      <p className="text-xs text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">
+        Customize color background schemes and layout display modes.
       </p>
-      <div className="flex items-center justify-between p-4 bg-slate-900/60 rounded-xl border border-slate-800">
-        <span className="text-xs text-slate-300">Default dark visual system</span>
+      <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-800">
+        <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Switch Theme Strategy</span>
         <ThemeToggle />
       </div>
     </section>
@@ -386,22 +390,22 @@ const AvatarCoverTab = ({ user }) => {
     <section className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
 
       {/* Avatar Panel */}
-      <div className="rounded-xl border border-slate-800/40 bg-slate-900/10 p-6 flex flex-col relative overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0F172A]/80 p-6 flex flex-col relative overflow-hidden shadow-xs">
         {isPending && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-            <Loader2 className="w-8 h-8 text-brand-cyan animate-spin" />
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-xs">
+            <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
           </div>
         )}
-        <h3 className="text-sm font-semibold text-slate-200 mb-1">Avatar Image</h3>
-        <p className="text-xs text-slate-500 mb-6 leading-relaxed">Update your channel thumbnail card photo.</p>
+        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Avatar Image</h3>
+        <p className="text-xs text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">Update your channel thumbnail card photo.</p>
 
         <div className="flex items-center gap-4 mb-6">
           <Avatar src={avatarPreview || user?.avatar} name={user?.fullname} size="xl" />
 
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] text-slate-500">JPG, PNG, or WebP (max 5MB)</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">JPG, PNG, or WebP (max 5MB)</span>
             <div className="flex gap-2">
-              <label className="text-2xs px-3 py-1.5 bg-slate-800 border border-slate-700 hover:border-brand-cyan text-slate-300 rounded-lg cursor-pointer transition-colors">
+              <label className="text-xs px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-cyan-500 text-slate-800 dark:text-slate-200 rounded-full cursor-pointer transition-colors font-medium">
                 Browse
                 <input
                   type="file"
@@ -412,7 +416,7 @@ const AvatarCoverTab = ({ user }) => {
                 />
               </label>
               {avatarFile && (
-                <Button variant="solid" size="sm" onClick={handleUploadAvatar} disabled={isPending}>
+                <Button variant="solid" size="sm" onClick={handleUploadAvatar} disabled={isPending} className="rounded-full px-4">
                   Upload
                 </Button>
               )}
@@ -424,36 +428,36 @@ const AvatarCoverTab = ({ user }) => {
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => { e.preventDefault(); handleAvatarChange(e.dataTransfer.files?.[0]); }}
-          className="flex-grow min-h-[96px] rounded-xl border border-dashed border-slate-800 hover:border-slate-700 bg-slate-950/20 flex flex-col items-center justify-center p-4 text-center cursor-pointer"
+          className="flex-grow min-h-[96px] rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-cyan-500 bg-slate-50 dark:bg-slate-900/30 flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-colors"
         >
-          <UploadCloud size={20} className="text-slate-500 mb-1" />
-          <span className="text-2xs text-slate-400">Drag & drop avatar image here</span>
+          <UploadCloud size={20} className="text-cyan-600 dark:text-cyan-400 mb-1" />
+          <span className="text-xs text-slate-600 dark:text-slate-400">Drag & drop avatar image here</span>
         </div>
       </div>
 
       {/* Cover Banner Panel */}
-      <div className="rounded-xl border border-slate-800/40 bg-slate-900/10 p-6 flex flex-col relative overflow-hidden">
+      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0F172A]/80 p-6 flex flex-col relative overflow-hidden shadow-xs">
         {isPending && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-            <Loader2 className="w-8 h-8 text-brand-cyan animate-spin" />
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/30 backdrop-blur-xs">
+            <Loader2 className="w-8 h-8 text-cyan-500 animate-spin" />
           </div>
         )}
-        <h3 className="text-sm font-semibold text-slate-200 mb-1">Cover Banner</h3>
-        <p className="text-xs text-slate-500 mb-6 leading-relaxed">Update your channel top cover header banner.</p>
+        <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">Cover Banner</h3>
+        <p className="text-xs text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">Update your channel top cover header banner.</p>
 
         <div className="flex flex-col gap-4 mb-6">
-          <div className="w-full h-16 rounded overflow-hidden bg-slate-850 border border-slate-800">
+          <div className="w-full h-16 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             {coverPreview || user?.coverImage ? (
               <img src={coverPreview || user?.coverImage} alt="Cover Banner" className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full bg-gradient-to-r from-brand-cyan/15 to-brand-indigo/15" />
+              <div className="w-full h-full bg-gradient-to-r from-cyan-500/20 to-indigo-500/20" />
             )}
           </div>
 
           <div className="flex items-center justify-between gap-4">
-            <span className="text-[10px] text-slate-500">JPG, PNG, or WebP (max 5MB)</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">JPG, PNG, or WebP (max 5MB)</span>
             <div className="flex gap-2">
-              <label className="text-2xs px-3 py-1.5 bg-slate-800 border border-slate-700 hover:border-brand-cyan text-slate-300 rounded-lg cursor-pointer transition-colors">
+              <label className="text-xs px-3 py-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-cyan-500 text-slate-800 dark:text-slate-200 rounded-full cursor-pointer transition-colors font-medium">
                 Browse
                 <input
                   type="file"
@@ -464,7 +468,7 @@ const AvatarCoverTab = ({ user }) => {
                 />
               </label>
               {coverFile && (
-                <Button variant="solid" size="sm" onClick={handleUploadCover} disabled={isPending}>
+                <Button variant="solid" size="sm" onClick={handleUploadCover} disabled={isPending} className="rounded-full px-4">
                   Upload
                 </Button>
               )}
@@ -476,14 +480,15 @@ const AvatarCoverTab = ({ user }) => {
         <div
           onDragOver={(e) => e.preventDefault()}
           onDrop={(e) => { e.preventDefault(); handleCoverChange(e.dataTransfer.files?.[0]); }}
-          className="flex-grow min-h-[96px] rounded-xl border border-dashed border-slate-800 hover:border-slate-700 bg-slate-950/20 flex flex-col items-center justify-center p-4 text-center cursor-pointer"
+          className="flex-grow min-h-[96px] rounded-xl border border-dashed border-slate-300 dark:border-slate-700 hover:border-cyan-500 bg-slate-50 dark:bg-slate-900/30 flex flex-col items-center justify-center p-4 text-center cursor-pointer transition-colors"
         >
-          <UploadCloud size={20} className="text-slate-500 mb-1" />
-          <span className="text-2xs text-slate-400">Drag & drop cover banner here</span>
+          <UploadCloud size={20} className="text-cyan-600 dark:text-cyan-400 mb-1" />
+          <span className="text-xs text-slate-600 dark:text-slate-400">Drag & drop cover banner here</span>
         </div>
       </div>
 
     </section>
   );
 };
+
 export default SettingsPage;

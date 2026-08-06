@@ -36,7 +36,7 @@ export const LikedVideosPage = () => {
   if (isLoading) {
     return (
       <div className="p-6 md:p-8 flex flex-col gap-6">
-        <div className="h-6 w-48 bg-slate-800 animate-pulse rounded" />
+        <div className="h-7 w-56 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-lg" />
         <VideoGrid className={layout === "list" ? "grid-cols-1!" : ""}>
           {Array.from({ length: 3 }).map((_, idx) => (
             <VideoCardSkeleton key={`like-skel-${idx}`} layout={layout} />
@@ -61,16 +61,18 @@ export const LikedVideosPage = () => {
   const hasVideos = displayVideos && displayVideos.length > 0;
 
   return (
-    <div className="p-6 md:p-8 flex flex-col gap-6 text-slate-100 select-none animate-fade-in">
+    <div className="p-4 sm:p-6 md:p-8 flex flex-col gap-6 select-none animate-fade-in">
       
       {/* Header bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-800/60">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h1 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-            <ThumbsUp size={20} className="text-slate-400" />
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
+            <span className="p-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 border border-cyan-200/60 dark:border-cyan-800/40">
+              <ThumbsUp size={20} />
+            </span>
             <span>Liked Videos</span>
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">Videos you have liked across this platform.</p>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">Videos you have liked across this platform.</p>
         </div>
 
         {hasVideos && (
@@ -90,6 +92,7 @@ export const LikedVideosPage = () => {
 
       {!hasVideos ? (
         <EmptyState 
+          icon={ThumbsUp}
           title="No Liked Videos"
           description="Click the Like button on any video page to add items here."
         />
@@ -100,10 +103,10 @@ export const LikedVideosPage = () => {
               <VideoCard video={video} layout={layout} />
               <button 
                 onClick={() => handleUnlike(video._id)}
-                className="absolute right-4 top-4 w-7 h-7 rounded-full bg-slate-950/80 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-red-400 opacity-0 group-hover/item:opacity-100 transition-opacity duration-200 cursor-pointer"
+                className="absolute right-4 top-4 w-8 h-8 rounded-full bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 hover:text-red-500 shadow-md opacity-0 group-hover/item:opacity-100 transition-all duration-200 cursor-pointer"
                 title="Remove from Liked Videos"
               >
-                <Trash2 size={12} />
+                <Trash2 size={13} />
               </button>
             </div>
           ))}

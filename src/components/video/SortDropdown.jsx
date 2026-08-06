@@ -16,27 +16,27 @@ export const SortDropdown = ({ value, onChange, options = [] }) => {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-800 bg-slate-900 text-slate-300 text-xs font-semibold hover:border-slate-700 transition-colors cursor-pointer"
+        className="flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] text-slate-800 dark:text-slate-200 text-xs font-semibold hover:border-slate-300 dark:hover:border-slate-700 transition-all shadow-xs cursor-pointer"
         aria-label="Sort options selection dropdown"
       >
-        <ArrowDownAZ size={14} className="text-slate-500" />
+        <ArrowDownAZ size={14} className="text-slate-500 dark:text-slate-400" />
         <span>{selectedOption?.label || "Sort"}</span>
-        <ChevronDown size={12} className="text-slate-500" />
+        <ChevronDown size={12} className="text-slate-400" />
       </button>
 
       {isOpen && (
         <>
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute right-0 top-[calc(100%+6px)] min-w-[140px] rounded-lg border border-slate-800/80 bg-slate-900 p-1 shadow-2xl z-50 animate-fade-in">
+          <div className="absolute right-0 top-[calc(100%+6px)] min-w-[150px] rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] p-1.5 shadow-xl z-50 animate-fade-in">
             {options.map((opt) => (
               <button
                 type="button"
                 key={opt.value}
                 onClick={() => handleSelect(opt.value)}
-                className={`w-full text-left px-3 py-2 text-2xs rounded-md transition-colors cursor-pointer ${
+                className={`w-full text-left px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer ${
                   value === opt.value
-                    ? "bg-slate-800 text-brand-cyan font-bold"
-                    : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                    ? "bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 font-bold"
+                    : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
                 {opt.label}

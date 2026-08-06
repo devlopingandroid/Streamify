@@ -8,6 +8,7 @@ import { SortDropdown } from "../components/video/SortDropdown";
 import { ViewToggle } from "../components/video/ViewToggle";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ErrorState } from "../components/ui/ErrorState";
+import { Search } from "lucide-react";
 
 export const SearchResultsPage = () => {
   const [searchParams] = useSearchParams();
@@ -34,8 +35,8 @@ export const SearchResultsPage = () => {
     return (
       <div className="p-4 md:p-6 flex flex-col gap-6 animate-fade-in">
         <div className="flex flex-col gap-2">
-          <div className="h-5 w-48 bg-slate-200 animate-pulse rounded-md" />
-          <div className="h-3 w-32 bg-slate-200 animate-pulse rounded-md" />
+          <div className="h-5 w-48 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md" />
+          <div className="h-3 w-32 bg-slate-200 dark:bg-slate-800 animate-pulse rounded-md" />
         </div>
         <VideoGrid className={layout === "list" ? "grid-cols-1!" : ""}>
           {Array.from({ length: 6 }).map((_, idx) => (
@@ -62,20 +63,23 @@ export const SearchResultsPage = () => {
   const hasResults = sortedVideos.length > 0;
 
   return (
-    <div className="p-4 md:p-6 flex flex-col gap-6 text-[#0F172A] select-none animate-fade-in">
+    <div className="p-4 sm:p-6 md:p-8 flex flex-col gap-6 select-none animate-fade-in">
       {/* Top Filter Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-[#E2E8F0]">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
         <div>
-          <h1 className="text-base font-bold text-[#0F172A]">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
+            <span className="p-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400 border border-cyan-200/60 dark:border-cyan-800/40">
+              <Search size={20} />
+            </span>
             {query ? (
-              <>
-                Search results for <span className="text-blue-600 font-semibold">"{query}"</span>
-              </>
+              <span>
+                Results for <span className="text-cyan-600 dark:text-cyan-400">"{query}"</span>
+              </span>
             ) : (
-              "All Videos"
+              <span>All Videos</span>
             )}
           </h1>
-          <p className="text-xs text-[#64748B] mt-0.5 font-medium">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1 font-medium">
             {sortedVideos.length} {sortedVideos.length === 1 ? "video" : "videos"} found
           </p>
         </div>
@@ -98,6 +102,7 @@ export const SearchResultsPage = () => {
 
       {!hasResults ? (
         <EmptyState
+          icon={Search}
           title="No videos found"
           description={
             query
@@ -116,4 +121,3 @@ export const SearchResultsPage = () => {
   );
 };
 export default SearchResultsPage;
-

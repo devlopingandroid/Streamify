@@ -347,69 +347,69 @@ const DesktopSidebar = ({ sidebarExpanded }) => {
   const isActive = (path) => location.pathname === path;
 
   const linkClass = (path) =>
-    `flex items-center gap-4 pl-5 pr-4 py-2.5 rounded-[12px] transition-all duration-250 ease-in-out active:scale-95 h-12 relative group ${
+    `flex items-center gap-4 pl-5 pr-4 py-2.5 rounded-[12px] transition-all duration-200 ease-in-out active:scale-95 h-12 relative group ${
       isActive(path)
-        ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
-        : "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60"
+        ? "bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 font-bold"
+        : "text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/80 font-medium"
     }`;
 
   const iconClass = (path) =>
     `transition-transform duration-200 ${
       isActive(path)
-        ? "scale-110 text-slate-900 dark:text-cyan-400"
+        ? "scale-110 text-cyan-600 dark:text-cyan-400"
         : "text-slate-500 dark:text-slate-400 group-hover:scale-110 group-hover:text-slate-900 dark:group-hover:text-white"
     }`;
 
   return (
     <aside
-      className="bg-white dark:bg-[#0F172A] fixed bottom-0 left-0 z-[998] py-6 transition-all duration-300 flex flex-col justify-between border-r border-slate-200 dark:border-slate-800/80 max-[768px]:-translate-x-full"
+      className="bg-white dark:bg-[#0F172A] fixed bottom-0 left-0 z-[998] py-6 transition-all duration-300 flex flex-col justify-between border-r border-slate-200 dark:border-slate-800/80 max-[768px]:-translate-x-full shadow-xs"
       style={{ top: "72px", width: sidebarExpanded ? "256px" : "80px" }}
     >
       <nav className="flex flex-col gap-1.5 px-3">
         <Link to="/" className={linkClass("/")} title="Home Feed">
-          {isActive("/") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-slate-900 dark:bg-cyan-400 rounded-r-full animate-fade-in" />}
+          {isActive("/") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-500 rounded-r-full animate-fade-in" />}
           <Home size={20} className={iconClass("/")} />
           {sidebarExpanded && <span className="text-xs">Home Feed</span>}
         </Link>
 
         <Link to="/analytics" className={linkClass("/analytics")} title="Creator Analytics">
-          {isActive("/analytics") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-slate-900 dark:bg-cyan-400 rounded-r-full animate-fade-in" />}
+          {isActive("/analytics") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-500 rounded-r-full animate-fade-in" />}
           <BarChart3 size={20} className={iconClass("/analytics")} />
           {sidebarExpanded && <span className="text-xs">Creator Analytics</span>}
         </Link>
 
         <Link to="/trending" className={linkClass("/trending")} title="Trending">
-          {isActive("/trending") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-slate-900 dark:bg-cyan-400 rounded-r-full animate-fade-in" />}
+          {isActive("/trending") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-500 rounded-r-full animate-fade-in" />}
           <Flame size={20} className={iconClass("/trending")} />
           {sidebarExpanded && <span className="text-xs">Trending</span>}
         </Link>
 
         <Link to="/feed/subscriptions" className={linkClass("/feed/subscriptions")} title="Subscriptions">
-          {isActive("/feed/subscriptions") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-slate-900 dark:bg-cyan-400 rounded-r-full animate-fade-in" />}
+          {isActive("/feed/subscriptions") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-500 rounded-r-full animate-fade-in" />}
           <UserCheck size={20} className={iconClass("/feed/subscriptions")} />
           {sidebarExpanded && <span className="text-xs">Subscriptions</span>}
         </Link>
 
         <Link to="/playlists" className={linkClass("/playlists")} title="Playlists">
-          {isActive("/playlists") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-slate-900 dark:bg-cyan-400 rounded-r-full animate-fade-in" />}
+          {isActive("/playlists") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-500 rounded-r-full animate-fade-in" />}
           <PlaySquare size={20} className={iconClass("/playlists")} />
           {sidebarExpanded && <span className="text-xs">Playlists</span>}
         </Link>
 
         <Link to="/history" className={linkClass("/history")} title="Watch History">
-          {isActive("/history") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-slate-900 dark:bg-cyan-400 rounded-r-full animate-fade-in" />}
+          {isActive("/history") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-500 rounded-r-full animate-fade-in" />}
           <Clock size={20} className={iconClass("/history")} />
           {sidebarExpanded && <span className="text-xs">History</span>}
         </Link>
 
         <Link to="/watch-later" className={linkClass("/watch-later")} title="Watch Later">
-          {isActive("/watch-later") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-slate-900 dark:bg-cyan-400 rounded-r-full animate-fade-in" />}
+          {isActive("/watch-later") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-500 rounded-r-full animate-fade-in" />}
           <Bookmark size={20} className={iconClass("/watch-later")} />
           {sidebarExpanded && <span className="text-xs">Watch Later</span>}
         </Link>
 
         <Link to="/liked-videos" className={linkClass("/liked-videos")} title="Liked Videos">
-          {isActive("/liked-videos") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-slate-900 dark:bg-cyan-400 rounded-r-full animate-fade-in" />}
+          {isActive("/liked-videos") && <span className="absolute left-0 top-2 bottom-2 w-1 bg-cyan-500 rounded-r-full animate-fade-in" />}
           <ThumbsUp size={20} className={iconClass("/liked-videos")} />
           {sidebarExpanded && <span className="text-xs">Liked Videos</span>}
         </Link>
@@ -417,7 +417,7 @@ const DesktopSidebar = ({ sidebarExpanded }) => {
 
       {sidebarExpanded && (
         <div className="px-6 py-4 border-t border-slate-200 dark:border-slate-800 text-left select-none">
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">Streamify Corp &copy; {new Date().getFullYear()}</p>
+          <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400">Streamify Corp &copy; {new Date().getFullYear()}</p>
         </div>
       )}
     </aside>
@@ -434,8 +434,8 @@ const MobileDrawer = ({ onClose, onLogout }) => {
   const linkClass = (path) =>
     `flex items-center gap-4 px-4 py-3 rounded-[12px] transition-all relative ${
       isActive(path)
-        ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold"
-        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+        ? "bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 font-bold"
+        : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium"
     }`;
 
   return (

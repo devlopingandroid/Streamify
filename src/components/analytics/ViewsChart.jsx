@@ -14,11 +14,11 @@ import { ChartContainer } from "./ChartContainer";
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="glassmorphism p-3 rounded-xl border border-slate-800/80 text-xs shadow-2xl select-none">
-        <p className="font-semibold text-slate-400 mb-1">{label}</p>
-        <p className="text-xs font-bold text-brand-cyan">
+      <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-xs shadow-xl select-none">
+        <p className="font-bold text-slate-700 dark:text-slate-300 mb-1">{label}</p>
+        <p className="text-xs font-bold text-cyan-600 dark:text-cyan-400">
           Views:{" "}
-          <span className="text-slate-100 font-mono">
+          <span className="text-slate-900 dark:text-slate-100 font-mono">
             {payload[0].value.toLocaleString()}
           </span>
         </p>
@@ -34,7 +34,6 @@ export const ViewsChart = memo(({
   isError = false,
   onRetry,
 }) => {
-  // Extract and normalize array format from API payload
   const chartData = Array.isArray(data)
     ? data
     : Array.isArray(data?.data)
@@ -60,15 +59,15 @@ export const ViewsChart = memo(({
           >
             <defs>
               <linearGradient id="viewsGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.25} />
-                <stop offset="95%" stopColor="#6366f1" stopOpacity={0.01} />
+                <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.35} />
+                <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.02} />
               </linearGradient>
             </defs>
 
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="#334155"
-              opacity={0.15}
+              stroke="#94a3b8"
+              opacity={0.2}
               vertical={false}
             />
 
@@ -92,7 +91,7 @@ export const ViewsChart = memo(({
               dx={-5}
             />
 
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(6, 182, 212, 0.15)", strokeWidth: 1 }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(6, 182, 212, 0.2)", strokeWidth: 1 }} />
 
             <Legend
               verticalAlign="top"
@@ -101,7 +100,7 @@ export const ViewsChart = memo(({
               iconSize={8}
               wrapperStyle={{
                 fontSize: "11px",
-                color: "#94a3b8",
+                color: "#64748b",
                 paddingBottom: "10px",
               }}
             />
@@ -110,12 +109,11 @@ export const ViewsChart = memo(({
               name="Views"
               type="monotone"
               dataKey={(item) => item.views !== undefined ? item.views : (item.value || 0)}
-              stroke="url(#viewsGradient)"
-              strokeWidth={2}
+              stroke="#06b6d4"
+              strokeWidth={2.5}
               fillOpacity={1}
               fill="url(#viewsGradient)"
               animationDuration={1500}
-              className="text-brand-cyan"
             />
           </AreaChart>
         </ResponsiveContainer>

@@ -13,7 +13,7 @@ import { Avatar } from "../components/ui/Avatar";
 import { Button } from "../components/ui/Button";
 import { ErrorState } from "../components/ui/ErrorState";
 import { PageLoader } from "../components/ui/PageLoader";
-import { formatNumber } from "../utils";
+import { formatNumber, formatDate } from "../utils";
 import { toast } from "react-hot-toast";
 import { 
   ThumbsUp, 
@@ -103,21 +103,21 @@ export const WatchPage = () => {
   const alternativeSuggestions = similarVideosList?.filter((v) => v._id !== videoId) || [];
 
   return (
-    <div className="p-6 md:p-8 max-w-[1440px] mx-auto animate-fade-in text-[#111827] select-none">
+    <div className="p-4 sm:p-6 md:p-8 max-w-[1440px] mx-auto animate-fade-in text-slate-900 dark:text-slate-100 select-none">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
         
         {/* Left Side: Main Player and Metadata Details */}
         <div className="flex flex-col">
           <VideoPlayer src={video.videoFile} poster={video.thumbnail} videoId={videoId} resumePosition={resumePosition} />
           
-          <h1 className="text-lg md:text-xl font-bold text-[#111827] mt-4 leading-relaxed">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100 mt-4 leading-snug">
             {video.title}
           </h1>
 
           {/* Interactive Info Row */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-3 pb-6 border-b border-slate-800/60">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-4 pb-6 border-b border-slate-200 dark:border-slate-800">
             {/* Owner channel details */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3.5">
               {ownerUsername ? (
                 <Link to={`/c/${ownerUsername}`}>
                   <Avatar src={ownerAvatar} name={ownerFullname} size="lg" />
@@ -127,19 +127,19 @@ export const WatchPage = () => {
               )}
               <div className="flex flex-col">
                 {ownerUsername ? (
-                  <Link to={`/c/${ownerUsername}`} className="font-semibold text-[#374151] hover:text-brand-cyan transition-colors text-xs">
+                  <Link to={`/c/${ownerUsername}`} className="font-bold text-slate-900 dark:text-slate-100 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors text-sm">
                     {ownerFullname}
                   </Link>
                 ) : (
-                  <span className="font-semibold text-[#374151] text-xs">{ownerFullname}</span>
+                  <span className="font-bold text-slate-900 dark:text-slate-100 text-sm">{ownerFullname}</span>
                 )}
-                {ownerUsername && <span className="text-[10px] text-[#6B7280] mt-0.5">@{ownerUsername}</span>}
+                {ownerUsername && <span className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">@{ownerUsername}</span>}
               </div>
               {!isOwnVideo && ownerId && (
                 <Button 
                   variant={isSubscribed ? "outline" : "solid"} 
                   size="sm" 
-                  className="ml-2 rounded-full"
+                  className="ml-3 rounded-full px-4 shadow-xs"
                   onClick={() => toggleSubscription()}
                   isLoading={isSubscribing}
                 >
@@ -149,72 +149,72 @@ export const WatchPage = () => {
             </div>
 
             {/* Utility action buttons */}
-            <div className="flex gap-2 items-center flex-wrap">
+            <div className="flex gap-2.5 items-center flex-wrap">
               <Button 
                 variant={likesInfo?.likedByCurrentUser ? "solid" : "outline"} 
                 size="sm" 
-                className="inline-flex items-center justify-center gap-1.5 rounded-full transition-all duration-150 active:scale-95 px-4"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full transition-all duration-150 active:scale-95 px-4 shadow-xs"
                 onClick={() => toggleLike()}
                 disabled={isToggling}
               >
-                <ThumbsUp size={14} className={likesInfo?.likedByCurrentUser ? "fill-current text-[#0F172A] animate-bounce" : "transition-transform"} />
-                <span className="text-[11px] font-semibold">
+                <ThumbsUp size={14} className={likesInfo?.likedByCurrentUser ? "fill-current animate-bounce" : "transition-transform"} />
+                <span className="text-xs font-semibold">
                   {likesInfo?.likedByCurrentUser ? "Liked" : "Like"} ({formatNumber(likesInfo?.totalLikes || 0)})
                 </span>
               </Button>
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="inline-flex items-center justify-center gap-1.5 rounded-full px-4"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full px-4 shadow-xs"
                 onClick={handleShare}
               >
                 <Share2 size={14} />
-                <span className="text-[11px] font-semibold">Share</span>
+                <span className="text-xs font-semibold">Share</span>
               </Button>
               <Button 
                 variant={isWatchLater ? "solid" : "outline"} 
                 size="sm" 
-                className="inline-flex items-center justify-center gap-1.5 rounded-full px-4"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full px-4 shadow-xs"
                 onClick={() => toggleWatchLater({ videoId, video })}
                 disabled={isWatchLaterPending}
               >
                 {isWatchLaterPending ? (
-                  <Loader2 size={14} className="animate-spin text-[#0F172A]" />
+                  <Loader2 size={14} className="animate-spin" />
                 ) : (
-                  <Clock size={14} className={isWatchLater ? "text-[#0F172A]" : ""} />
+                  <Clock size={14} className={isWatchLater ? "fill-current" : ""} />
                 )}
-                <span className="text-[11px] font-semibold">Watch Later</span>
+                <span className="text-xs font-semibold">Watch Later</span>
               </Button>
               <Button 
                 variant={isSaved ? "solid" : "outline"} 
                 size="sm" 
-                className="inline-flex items-center justify-center gap-1.5 rounded-full px-4"
+                className="inline-flex items-center justify-center gap-1.5 rounded-full px-4 shadow-xs"
                 onClick={handleSave}
               >
                 <Bookmark size={14} />
-                <span className="text-[11px] font-semibold">Save</span>
+                <span className="text-xs font-semibold">Save</span>
               </Button>
             </div>
           </div>
 
           {/* Video Description panel */}
-          <div className="rounded-xl border border-[#E2E8F0] bg-white p-4 mt-6">
-            <div className="flex gap-2 text-[10px] text-slate-500 font-semibold mb-2">
+          <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0F172A]/80 p-5 mt-6 shadow-xs">
+            <div className="flex gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 mb-2">
               <span>{formatNumber(video.views)} views</span>
               <span>•</span>
-              <span>Uploaded 3 days ago</span>
+              <span>Uploaded {formatDate(video.createdAt, "standard")}</span>
             </div>
-            <p className={`text-xs text-slate-600 leading-relaxed whitespace-pre-wrap break-words ${
+            <p className={`text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap break-words ${
               descExpanded ? "" : "line-clamp-2"
             }`}>
               {video.description}
             </p>
             <button 
               onClick={() => setDescExpanded(!descExpanded)}
-              className="flex items-center gap-1 text-[11px] font-bold text-[#0F172A] hover:text-slate-700 mt-3 cursor-pointer transition-colors"
+              className="flex items-center gap-1 text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 mt-3 cursor-pointer transition-colors"
             >
               <span>{descExpanded ? "Show Less" : "Show More"}</span>
-              {descExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              {descExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </button>
           </div>
 
@@ -223,7 +223,10 @@ export const WatchPage = () => {
 
         {/* Right Side: Suggestions List */}
         <aside className="flex flex-col gap-4">
-          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Up Next</h2>
+          <h2 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+            <span>Up Next</span>
+          </h2>
           <RecommendationSidebar
             items={alternativeSuggestions}
             loading={similarLoading}

@@ -72,26 +72,22 @@ export const HomePage = () => {
   const recommendedVideos =
     recommendedData?.pages?.flatMap((page) => {
       if (!page) return [];
-
       if (Array.isArray(page.results)) return page.results;
-
       if (Array.isArray(page.docs)) return page.docs;
-
       if (Array.isArray(page.videos)) return page.videos;
-
       return [];
     }) ?? [];
 
-  console.log(recommendedData);
-  console.log(recommendedVideos);
-
   return (
-    <div className="p-6 md:p-8 flex flex-col gap-10 text-slate-100 select-none">
+    <div className="p-4 sm:p-6 md:p-8 flex flex-col gap-10 select-none animate-fade-in">
 
       {/* Continue Watching Section */}
       {continueWatching && continueWatching.length > 0 && (
         <section>
-          <h2 className="text-sm font-semibold text-slate-300 mb-6 uppercase tracking-wider">Continue Watching</h2>
+          <h2 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+            <span>Continue Watching</span>
+          </h2>
           <VideoGrid>
             {continueWatching.map((video) => (
               <VideoCard key={`cw-${video._id}`} video={video} />
@@ -102,7 +98,10 @@ export const HomePage = () => {
 
       {/* Recommended Section */}
       <section>
-        <h2 className="text-sm font-semibold text-slate-300 mb-6 uppercase tracking-wider">Recommended Videos</h2>
+        <h2 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+          <span>Recommended Videos</span>
+        </h2>
         <RecommendationGrid
           items={recommendedVideos}
           loading={recommendedLoading || isFetchingNextPage}
@@ -123,8 +122,11 @@ export const HomePage = () => {
       </section>
 
       {/* Trending Section */}
-      <section className="border-t border-slate-800/40 pt-10">
-        <h2 className="text-sm font-semibold text-slate-300 mb-6 uppercase tracking-wider">Trending Videos</h2>
+      <section className="border-t border-slate-200 dark:border-slate-800/80 pt-10">
+        <h2 className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-5 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-cyan-500"></span>
+          <span>Trending Videos</span>
+        </h2>
         {trendingLoading ? (
           <VideoGrid>
             {Array.from({ length: 4 }).map((_, idx) => (

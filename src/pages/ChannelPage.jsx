@@ -35,7 +35,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
       >
         Previous
       </Button>
-      <span className="text-xs text-slate-400">
+      <span className="text-xs text-slate-600 dark:text-slate-400">
         Page {currentPage} of {totalPages}
       </span>
       <Button
@@ -62,7 +62,7 @@ const SubscriberListItem = ({ subscriber }) => {
   const isSelf = currentUser?._id === subscriber._id;
 
   return (
-    <div className="flex items-center justify-between gap-4 py-1.5 select-none">
+    <div className="flex items-center justify-between gap-4 py-2 select-none border-b border-slate-100 dark:border-slate-800/60 last:border-none">
       <div className="flex items-center gap-3 min-w-0">
         <Link to={`/c/${subscriber.username}`} className="flex-shrink-0">
           <Avatar src={subscriber.avatar} name={subscriber.fullname} size="sm" />
@@ -70,20 +70,20 @@ const SubscriberListItem = ({ subscriber }) => {
         <div className="flex flex-col min-w-0 text-left">
           <Link 
             to={`/c/${subscriber.username}`} 
-            className="text-xs font-bold text-slate-200 truncate hover:text-brand-cyan transition-colors"
+            className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors"
           >
             {subscriber.fullname}
           </Link>
-          <span className="text-[10px] text-slate-500 truncate">@{subscriber.username}</span>
+          <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate">@{subscriber.username}</span>
         </div>
       </div>
       {!isSelf && (
         <Button
           variant={subscribed ? "outline" : "solid"}
           size="sm"
-          className="rounded-full flex-shrink-0 text-2xs px-2.5 py-1 h-7"
           onClick={() => toggleSubscription()}
           isLoading={isToggling}
+          className="text-[10px] h-7 px-3 rounded-full flex-shrink-0"
         >
           {subscribed ? "Subscribed" : "Subscribe"}
         </Button>
@@ -93,37 +93,26 @@ const SubscriberListItem = ({ subscriber }) => {
 };
 
 const SubscriberListModal = ({ isOpen, onClose, channelId }) => {
-  const { data: subscribers, isLoading, error } = useChannelSubscribers(channelId);
+  const { data: subscribers, isLoading, isError, refetch } = useChannelSubscribers(channelId, isOpen);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Subscribers">
-      {isLoading ? (
-        <div className="flex flex-col gap-4 py-2">
-          {Array.from({ length: 3 }).map((_, idx) => (
-            <div key={`sub-skel-${idx}`} className="flex items-center gap-3 animate-pulse">
-              <div className="w-10 h-10 rounded-full bg-slate-800" />
-              <div className="flex-grow flex flex-col gap-1.5">
-                <div className="w-24 h-3 bg-slate-800 rounded" />
-                <div className="w-16 h-2 bg-slate-800 rounded" />
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : error ? (
-        <div className="text-xs text-red-400 py-4 text-center">
-          Failed to load subscribers. Connection refused.
-        </div>
-      ) : !subscribers || subscribers.length === 0 ? (
-        <div className="text-xs text-slate-500 py-6 text-center italic">
-          No subscribers yet.
-        </div>
-      ) : (
-        <div className="flex flex-col gap-4 max-h-[50vh] overflow-y-auto pr-1">
-          {(subscribers || []).map((subscriber) => (
-            <SubscriberListItem key={subscriber._id} subscriber={subscriber} />
-          ))}
-        </div>
-      )}
+    <Modal isOpen={isOpen} onClose={onClose} title="Subscribers" size="md">
+      <div className="flex flex-col gap-2 max-h-[380px] overflow-y-auto pr-1">
+        {isLoading ? (
+          <div className="p-4 text-center text-xs text-slate-500 animate-pulse">Loading subscriber list...</div>
+        ) : isError ? (
+          <div className="p-4 text-center">
+            <p className="text-xs text-rose-500 mb-2">Failed to load subscriber list.</p>
+            <Button variant="outline" size="sm" onClick={refetch}>Retry</Button>
+          </div>
+        ) : !subscribers || subscribers.length === 0 ? (
+          <div className="p-6 text-center text-xs text-slate-500">No subscribers yet for this channel.</div>
+        ) : (
+          subscribers.map((sub) => (
+            <SubscriberListItem key={sub._id} subscriber={sub} />
+          ))
+        )}
+      </div>
     </Modal>
   );
 };
@@ -320,7 +309,7 @@ export const ChannelPage = () => {
           return (
             <ErrorState
               title="Query Error"
-              description="Failed to load watch history feed."
+              description="Failed to load watch history."
               onRetry={refetchHistory}
             />
           );
@@ -328,8 +317,8 @@ export const ChannelPage = () => {
         if (!historyData?.docs || historyData.docs.length === 0) {
           return (
             <EmptyState
-              title="History Empty"
-              description="Your watch history list is currently empty."
+              title="No Watch History"
+              description="You haven't watched any videos yet."
             />
           );
         }
@@ -354,7 +343,7 @@ export const ChannelPage = () => {
           return (
             <VideoGrid>
               {Array.from({ length: 4 }).map((_, idx) => (
-                <VideoCardSkeleton key={`continue-skel-${idx}`} />
+                <VideoCardSkeleton key={`cw-skel-${idx}`} />
               ))}
             </VideoGrid>
           );
@@ -363,7 +352,7 @@ export const ChannelPage = () => {
           return (
             <ErrorState
               title="Query Error"
-              description="Failed to load continue watching feed."
+              description="Failed to load continue watching list."
               onRetry={refetchContinueWatching}
             />
           );
@@ -371,8 +360,8 @@ export const ChannelPage = () => {
         if (!continueWatchingVideos || continueWatchingVideos.length === 0) {
           return (
             <EmptyState
-              title="All Caught Up!"
-              description="No incomplete video sessions found. Start watching some videos!"
+              title="No Unfinished Videos"
+              description="You have no videos in progress."
             />
           );
         }
@@ -387,21 +376,21 @@ export const ChannelPage = () => {
       case "playlists":
         return (
           <EmptyState
-            title="No Playlists Configured"
-            description="Playlists features will be enabled in subsequent phase releases."
+            title="Channel Playlists"
+            description="Public playlists created by this channel will appear here."
           />
         );
 
       case "about":
       default:
         return (
-          <div className="rounded-xl border border-slate-800/40 bg-slate-900/10 p-6 max-w-xl text-left">
-            <h3 className="text-sm font-semibold text-slate-100 mb-2">About Channel</h3>
-            <p className="text-xs text-slate-400 leading-relaxed mb-4">
+          <div className="bg-white/80 dark:bg-[#0F172A]/80 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 md:p-8 max-w-2xl text-left shadow-xs">
+            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100 mb-3">About {channel.fullname}</h3>
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-4">
               Welcome to the workspace of {channel.fullname}. Streamify enterprise members distribute instructionals, media cards, and system reports here.
             </p>
-            <div className="border-t border-slate-800/60 pt-4 mt-4 flex items-center gap-2 text-xs text-slate-400">
-              <Mail size={14} className="text-slate-500" />
+            <div className="border-t border-slate-200 dark:border-slate-800 pt-4 mt-4 flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+              <Mail size={16} className="text-cyan-600 dark:text-cyan-400" />
               <span>Contact: {channel.email}</span>
             </div>
           </div>
@@ -410,32 +399,32 @@ export const ChannelPage = () => {
   };
 
   return (
-    <div className="flex flex-col w-full animate-fade-in text-slate-100 select-none">
+    <div className="flex flex-col w-full animate-fade-in text-slate-900 dark:text-slate-100 select-none">
       {/* Cover Banner */}
-      <div className="w-full h-[180px] md:h-[260px] relative bg-slate-900 overflow-hidden border-b border-slate-800/60">
+      <div className="w-full h-[180px] md:h-[260px] relative bg-slate-200 dark:bg-slate-900 overflow-hidden border-b border-slate-200 dark:border-slate-800">
         {channel.coverImage ? (
           <img src={channel.coverImage} alt="Cover Banner" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-brand-cyan/10 to-brand-indigo/10" />
+          <div className="w-full h-full bg-gradient-to-r from-cyan-500/20 to-indigo-500/20" />
         )}
       </div>
 
       {/* Profile Row Detail */}
       <div className="flex flex-col sm:flex-row sm:items-end gap-6 px-6 md:px-12 -mt-12 relative z-10">
-        <div className="relative w-24 h-24 rounded-full border-4 border-dark-base bg-dark-base shadow-xl flex-shrink-0">
+        <div className="relative w-24 h-24 rounded-full border-4 border-slate-50 dark:border-[#090D16] bg-slate-50 dark:bg-[#090D16] shadow-xl flex-shrink-0">
           <Avatar src={channel.avatar} name={channel.fullname} size="xl" className="w-full h-full" />
         </div>
 
         <div className="flex flex-col flex-grow pb-2 text-left">
           <div className="flex flex-col sm:flex-row gap-4 justify-between items-start w-full">
             <div>
-              <h1 className="text-xl md:text-2xl font-bold text-slate-100">{channel.fullname}</h1>
-              <p className="text-xs text-slate-400 mt-0.5">@{channel.username}</p>
+              <h1 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100">{channel.fullname}</h1>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">@{channel.username}</p>
             </div>
 
             {isOwnProfile ? (
               <Link to="/settings">
-                <Button variant="outline" size="sm" className="gap-1.5 rounded-full">
+                <Button variant="outline" size="sm" className="gap-1.5 rounded-full px-4 shadow-xs">
                   <Settings size={14} />
                   <span>Edit Profile</span>
                 </Button>
@@ -444,7 +433,7 @@ export const ChannelPage = () => {
               <Button
                 variant={isSubscribed ? "outline" : "solid"}
                 size="sm"
-                className="rounded-full"
+                className="rounded-full px-5 shadow-xs"
                 onClick={() => toggleSubscription()}
                 isLoading={isSubscribing}
               >
@@ -453,20 +442,20 @@ export const ChannelPage = () => {
             )}
           </div>
 
-          <div className="flex gap-4 mt-3 flex-wrap">
+          <div className="flex gap-5 mt-3 flex-wrap">
             <div 
-              className="flex items-center gap-1 text-[11px] text-slate-400 cursor-pointer hover:text-brand-cyan transition-colors"
+              className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors font-medium"
               onClick={() => setSubscribersModalOpen(true)}
             >
-              <Users size={12} className="text-slate-500" />
+              <Users size={14} className="text-slate-500" />
               <span>
-                <strong>{formatNumber(displaySubscribersCount)}</strong> Subscribers
+                <strong className="text-slate-900 dark:text-slate-100 font-bold">{formatNumber(displaySubscribersCount)}</strong> Subscribers
               </span>
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-slate-400">
-              <Users size={12} className="text-slate-500" />
+            <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400 font-medium">
+              <Users size={14} className="text-slate-500" />
               <span>
-                <strong>{formatNumber(channel.channelsSubscribedToCount)}</strong> Subscribed
+                <strong className="text-slate-900 dark:text-slate-100 font-bold">{formatNumber(channel.channelsSubscribedToCount)}</strong> Subscribed
               </span>
             </div>
           </div>
@@ -474,14 +463,14 @@ export const ChannelPage = () => {
       </div>
 
       {/* Tabs list menu */}
-      <div className="flex border-b border-slate-800/80 mt-8 px-6 md:px-12 overflow-x-auto scrollbar-none whitespace-nowrap">
+      <div className="flex border-b border-slate-200 dark:border-slate-800 mt-8 px-6 md:px-12 overflow-x-auto scrollbar-none whitespace-nowrap">
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            className={`px-5 py-4 text-xs font-semibold uppercase tracking-wider border-b-2 transition-all cursor-pointer whitespace-nowrap ${
+            className={`px-5 py-3.5 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer whitespace-nowrap ${
               activeTab === tab.id
-                ? "border-brand-cyan text-brand-cyan"
-                : "border-transparent text-slate-500 hover:text-slate-300"
+                ? "border-cyan-500 text-cyan-600 dark:text-cyan-400"
+                : "border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
             }`}
             onClick={() => {
               setActiveTab(tab.id);
@@ -493,7 +482,7 @@ export const ChannelPage = () => {
       </div>
 
       {/* Tabs Content panel */}
-      <div className="p-6 md:p-12">{renderTabContent()}</div>
+      <div className="p-4 sm:p-6 md:p-8">{renderTabContent()}</div>
 
       {/* Subscriber List Modal */}
       <SubscriberListModal 

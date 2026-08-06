@@ -11,7 +11,6 @@ export const TopVideosTable = memo(({
   const [sortColumn, setSortColumn] = useState("views");
   const [sortDirection, setSortDirection] = useState("desc");
 
-  // Normalize list from API payload
   const videos = useMemo(() => {
     return Array.isArray(data)
       ? data
@@ -20,7 +19,6 @@ export const TopVideosTable = memo(({
       : [];
   }, [data]);
 
-  // Headers config
   const headers = [
     { label: "Video", key: "title", sortable: false },
     { label: "Views", key: "views", sortable: true },
@@ -39,7 +37,6 @@ export const TopVideosTable = memo(({
     }
   };
 
-  // Safe sorting mapping
   const sortedVideos = useMemo(() => {
     if (!videos.length) return [];
     
@@ -47,7 +44,6 @@ export const TopVideosTable = memo(({
       let valA = a[sortColumn];
       let valB = b[sortColumn];
 
-      // Handle camelCase vs snake_case aliases
       if (sortColumn === "watchTime") {
         valA = a.watchTime !== undefined ? a.watchTime : (a.watch_time || 0);
         valB = b.watchTime !== undefined ? b.watchTime : (b.watch_time || 0);
@@ -58,7 +54,6 @@ export const TopVideosTable = memo(({
         valB = parseFloat(String(rateB).replace("%", ""));
       }
 
-      // Safe checks for numbers
       const numA = Number(valA);
       const numB = Number(valB);
 
@@ -66,7 +61,6 @@ export const TopVideosTable = memo(({
         return sortDirection === "asc" ? numA - numB : numB - numA;
       }
 
-      // String fallback
       const strA = String(valA).toLowerCase();
       const strB = String(valB).toLowerCase();
       if (strA < strB) return sortDirection === "asc" ? -1 : 1;
@@ -93,12 +87,12 @@ export const TopVideosTable = memo(({
       isError={isError}
       isEmpty={isEmpty}
       onRetry={onRetry}
-      className="lg:col-span-3 min-h-[420px]"
+      className="w-full min-h-[380px]"
     >
       <div className="w-full h-full overflow-x-auto custom-scrollbar" tabIndex={0} aria-label="Top performing streams table container">
         <table className="w-full text-left border-collapse text-xs select-none">
           <thead>
-            <tr className="border-b border-slate-800/80 text-slate-500 uppercase tracking-wider font-semibold">
+            <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider font-bold">
               {headers.map((hdr) => (
                 <th
                   key={hdr.key}
@@ -106,9 +100,9 @@ export const TopVideosTable = memo(({
                   tabIndex={hdr.sortable ? 0 : -1}
                   onClick={() => hdr.sortable && handleSort(hdr.key)}
                   onKeyDown={(e) => handleHeaderKeyDown(e, hdr.key, hdr.sortable)}
-                  className={`py-3 px-4 first:pl-0 last:pr-0 select-none ${
+                  className={`py-3.5 px-4 first:pl-0 last:pr-0 select-none ${
                     hdr.sortable
-                      ? "cursor-pointer hover:text-slate-300 transition-colors focus-visible:ring-1 focus-visible:ring-brand-cyan outline-none"
+                      ? "cursor-pointer hover:text-slate-900 dark:hover:text-slate-200 transition-colors outline-none"
                       : ""
                   }`}
                   aria-sort={
@@ -122,7 +116,7 @@ export const TopVideosTable = memo(({
                   <div className="flex items-center gap-1">
                     <span>{hdr.label}</span>
                     {hdr.sortable && sortColumn === hdr.key && (
-                      <span className="text-brand-cyan" aria-hidden="true">
+                      <span className="text-cyan-600 dark:text-cyan-400" aria-hidden="true">
                         {sortDirection === "asc" ? (
                           <ChevronUp size={14} />
                         ) : (
@@ -135,7 +129,7 @@ export const TopVideosTable = memo(({
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/40 text-slate-300 font-medium">
+          <tbody className="divide-y divide-slate-200 dark:divide-slate-800 text-slate-800 dark:text-slate-200 font-medium">
             {sortedVideos.map((video, idx) => {
               const videoId = video._id || video.id || `row-${idx}`;
               const videoTitle = video.title || "Untitled stream";
@@ -149,12 +143,12 @@ export const TopVideosTable = memo(({
               return (
                 <tr
                   key={videoId}
-                  className="hover:bg-slate-900/35 transition-colors group"
+                  className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
                 >
                   {/* Thumbnail & Title Column */}
-                  <td className="py-3 px-4 first:pl-0 max-w-[280px]">
-                    <div className="flex items-center gap-3">
-                      <div className="w-16 h-10 rounded-lg overflow-hidden border border-slate-800/80 bg-slate-950 flex-shrink-0 group-hover:border-slate-700/60 transition-colors relative">
+                  <td className="py-3.5 px-4 first:pl-0 max-w-[320px]">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-16 h-10 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 flex-shrink-0 group-hover:border-slate-300 dark:group-hover:border-slate-700 transition-colors relative shadow-xs">
                         <img
                           src={videoThumb}
                           alt=""
@@ -162,13 +156,13 @@ export const TopVideosTable = memo(({
                           loading="lazy"
                         />
                         {idx < 3 && (
-                          <div className="absolute top-0.5 left-0.5 bg-brand-cyan/90 text-slate-950 rounded p-0.5 flex items-center justify-center" title="Top Performer">
+                          <div className="absolute top-0.5 left-0.5 bg-cyan-500 text-white rounded p-0.5 flex items-center justify-center shadow-xs" title="Top Performer">
                             <Flame size={10} className="fill-current" />
                           </div>
                         )}
                       </div>
                       <span
-                        className="font-semibold text-slate-200 line-clamp-2 truncate max-w-[180px] group-hover:text-brand-cyan transition-colors"
+                        className="font-bold text-slate-900 dark:text-slate-100 line-clamp-2 truncate max-w-[220px] group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors"
                         title={videoTitle}
                       >
                         {videoTitle}
@@ -176,19 +170,19 @@ export const TopVideosTable = memo(({
                     </div>
                   </td>
                   {/* Stats columns */}
-                  <td className="py-3 px-4 font-mono text-slate-300">
+                  <td className="py-3.5 px-4 font-mono text-slate-800 dark:text-slate-200 font-semibold">
                     {viewsCount.toLocaleString()}
                   </td>
-                  <td className="py-3 px-4 font-mono text-slate-300">
+                  <td className="py-3.5 px-4 font-mono text-slate-800 dark:text-slate-200 font-semibold">
                     {likesCount.toLocaleString()}
                   </td>
-                  <td className="py-3 px-4 font-mono text-slate-300">
+                  <td className="py-3.5 px-4 font-mono text-slate-800 dark:text-slate-200 font-semibold">
                     {commentsCount.toLocaleString()}
                   </td>
-                  <td className="py-3 px-4 font-mono text-slate-300">
+                  <td className="py-3.5 px-4 font-mono text-slate-800 dark:text-slate-200 font-semibold">
                     {Number(watchHours).toLocaleString()} hrs
                   </td>
-                  <td className="py-3 px-4 font-mono text-brand-cyan font-bold">
+                  <td className="py-3.5 px-4 font-mono text-cyan-600 dark:text-cyan-400 font-extrabold">
                     {typeof engagement === "number" ? `${engagement.toFixed(1)}%` : engagement}
                   </td>
                 </tr>

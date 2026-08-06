@@ -23,31 +23,26 @@ import { AnalyticsEmpty } from "../components/analytics/AnalyticsEmpty";
 
 export const AnalyticsPage = () => {
   const queryClient = useQueryClient();
-  const [period, setPeriod] = useState("weekly"); // Default to "weekly" (Last 30 Days)
+  const [period, setPeriod] = useState("weekly");
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
-  // 1. Initial Page Load: Call /analytics/dashboard
   const dashboardQuery = useAnalyticsDashboard();
   const isDashboardLoaded = dashboardQuery.isSuccess;
 
-  // Update last-updated time when dashboard completes successfully
   useEffect(() => {
     if (isDashboardLoaded) {
       setLastUpdated(new Date());
     }
   }, [isDashboardLoaded]);
 
-  // 2. Automatically fetch secondary metrics after dashboard loads
   const viewsQuery = useAnalyticsViews(period, isDashboardLoaded);
   const subscribersQuery = useAnalyticsSubscribers(period, isDashboardLoaded);
   const watchTimeQuery = useAnalyticsWatchTime(isDashboardLoaded);
   const topVideosQuery = useAnalyticsTopVideos(isDashboardLoaded);
 
-  // Manual refresh trigger
   const handleRefresh = useCallback(async () => {
     toast.loading("Refetching channel analytics...", { id: "refresh-toast" });
     try {
-      // Invalidate analytics queries to trigger fresh network requests
       await queryClient.invalidateQueries({ queryKey: ["analytics"] });
       setLastUpdated(new Date());
       toast.success("Analytics updated successfully.", { id: "refresh-toast" });
@@ -56,7 +51,6 @@ export const AnalyticsPage = () => {
     }
   }, [queryClient]);
 
-  // CSV Exporter
   const handleExportCSV = useCallback(() => {
     const dashboardData = dashboardQuery.data?.data || dashboardQuery.data;
     const topVideosData = topVideosQuery.data?.data || topVideosQuery.data || [];
@@ -69,13 +63,11 @@ export const AnalyticsPage = () => {
     try {
       const rows = [];
       
-      // Header Section
       rows.push(["STREAMIFY CREATOR REPORT"]);
       rows.push(["Generated on", new Date().toLocaleString()]);
       rows.push(["Selected Filter Period", period]);
       rows.push([]);
 
-      // Section 1: Dashboard Summary Cards
       rows.push(["1. CHANNEL SUMMARY METRICS"]);
       rows.push(["Metric Label", "Value", "Trend vs Previous Period"]);
 
@@ -95,7 +87,6 @@ export const AnalyticsPage = () => {
       rows.push(["Engagement Ratio", getVal("engagementRate"), getTrend("engagementRate")]);
       rows.push([]);
 
-      // Section 2: Top Performing Video Table
       rows.push(["2. TOP PERFORMING STREAMS"]);
       rows.push(["Video Title", "Views", "Likes", "Comments", "Watch Time (Hours)", "Engagement Rate"]);
 
@@ -117,7 +108,6 @@ export const AnalyticsPage = () => {
         ]);
       });
 
-      // Assembly
       const csvContent = rows.map((r) => r.join(",")).join("\n");
       const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
       const url = URL.createObjectURL(blob);
@@ -138,12 +128,10 @@ export const AnalyticsPage = () => {
     }
   }, [dashboardQuery.data, topVideosQuery.data, period]);
 
-  // Determine state representations
   const isDashboardLoading = dashboardQuery.isLoading;
   const isDashboardError = dashboardQuery.isError;
   const dashboardData = dashboardQuery.data?.data || dashboardQuery.data;
 
-  // Render Skeletons on initial load
   if (isDashboardLoading) {
     return (
       <main className="p-6 md:p-8" aria-label="Loading analytics dashboard">
@@ -152,7 +140,6 @@ export const AnalyticsPage = () => {
     );
   }
 
-  // Render Global Error bounds if dashboard fails
   if (isDashboardError) {
     return (
       <main className="p-6 md:p-8" aria-label="Analytics error state">
@@ -164,7 +151,6 @@ export const AnalyticsPage = () => {
     );
   }
 
-  // Render Empty State if no dashboard numbers exist at all
   if (!dashboardData || Object.keys(dashboardData).length === 0) {
     return (
       <main className="p-6 md:p-8" aria-label="Analytics empty state">
@@ -174,7 +160,7 @@ export const AnalyticsPage = () => {
   }
 
   return (
-    <main className="p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-6" aria-label="Creator Analytics Dashboard">
+    <main className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto flex flex-col gap-8 animate-fade-in" aria-label="Creator Analytics Dashboard">
       {/* Page Header Area */}
       <AnalyticsHeader
         period={period}
@@ -188,7 +174,7 @@ export const AnalyticsPage = () => {
       {/* KPI Stats Grid */}
       <AnalyticsCards data={dashboardData} />
 
-      {/* Interactive Charts section */}
+      {/* Interactive Performance & Growth Charts section */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ViewsChart
           data={viewsQuery.data}
@@ -204,21 +190,21 @@ export const AnalyticsPage = () => {
         />
       </div>
 
-      {/* Watch Retention & Rankings section */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5 items-stretch">
-        <WatchTimeCard
-          data={watchTimeQuery.data}
-          isLoading={watchTimeQuery.isLoading}
-          isError={watchTimeQuery.isError}
-          onRetry={() => watchTimeQuery.refetch()}
-        />
-        <TopVideosTable
-          data={topVideosQuery.data}
-          isLoading={topVideosQuery.isLoading}
-          isError={topVideosQuery.isError}
-          onRetry={() => topVideosQuery.refetch()}
-        />
-      </div>
+      {/* Expanded Full-Width Watch Time & Retention Section */}
+      <WatchTimeCard
+        data={watchTimeQuery.data}
+        isLoading={watchTimeQuery.isLoading}
+        isError={watchTimeQuery.isError}
+        onRetry={() => watchTimeQuery.refetch()}
+      />
+
+      {/* Expanded Full-Width Top Performing Streams Rankings Section */}
+      <TopVideosTable
+        data={topVideosQuery.data}
+        isLoading={topVideosQuery.isLoading}
+        isError={topVideosQuery.isError}
+        onRetry={() => topVideosQuery.refetch()}
+      />
     </main>
   );
 };

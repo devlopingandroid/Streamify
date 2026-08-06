@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const applyThemeDOM = (theme) => {
   if (typeof window === "undefined") return;
   const root = window.document.documentElement;
+  const body = window.document.body;
   let isDark = false;
   
   if (theme === "system") {
@@ -12,12 +13,22 @@ const applyThemeDOM = (theme) => {
   }
 
   root.setAttribute("data-theme", isDark ? "dark" : "light");
+  if (body) body.setAttribute("data-theme", isDark ? "dark" : "light");
+
   if (isDark) {
     root.classList.add("dark");
     root.classList.remove("light");
+    if (body) {
+      body.classList.add("dark");
+      body.classList.remove("light");
+    }
   } else {
     root.classList.add("light");
     root.classList.remove("dark");
+    if (body) {
+      body.classList.add("light");
+      body.classList.remove("dark");
+    }
   }
 };
 

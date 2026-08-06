@@ -14,11 +14,11 @@ import { ChartContainer } from "./ChartContainer";
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="glassmorphism p-3 rounded-xl border border-slate-800/80 text-xs shadow-2xl select-none">
-        <p className="font-semibold text-slate-400 mb-1">{label}</p>
-        <p className="text-xs font-bold text-brand-indigo">
+      <div className="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-800 text-xs shadow-xl select-none">
+        <p className="font-bold text-slate-700 dark:text-slate-300 mb-1">{label}</p>
+        <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
           New Subscribers:{" "}
-          <span className="text-slate-100 font-mono">
+          <span className="text-slate-900 dark:text-slate-100 font-mono">
             {payload[0].value.toLocaleString()}
           </span>
         </p>
@@ -34,7 +34,6 @@ export const SubscriberChart = memo(({
   isError = false,
   onRetry,
 }) => {
-  // Extract and normalize array format from API payload
   const chartData = Array.isArray(data)
     ? data
     : Array.isArray(data?.data)
@@ -60,8 +59,8 @@ export const SubscriberChart = memo(({
           >
             <CartesianGrid
               strokeDasharray="3 3"
-              stroke="#334155"
-              opacity={0.15}
+              stroke="#94a3b8"
+              opacity={0.2}
               vertical={false}
             />
 
@@ -85,7 +84,7 @@ export const SubscriberChart = memo(({
               dx={-5}
             />
 
-            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(99, 102, 241, 0.15)", strokeWidth: 1 }} />
+            <Tooltip content={<CustomTooltip />} cursor={{ stroke: "rgba(99, 102, 241, 0.2)", strokeWidth: 1 }} />
 
             <Legend
               verticalAlign="top"
@@ -94,7 +93,7 @@ export const SubscriberChart = memo(({
               iconSize={8}
               wrapperStyle={{
                 fontSize: "11px",
-                color: "#94a3b8",
+                color: "#64748b",
                 paddingBottom: "10px",
               }}
             />
@@ -112,7 +111,7 @@ export const SubscriberChart = memo(({
               stroke="#6366f1"
               strokeWidth={3}
               activeDot={{ r: 6, strokeWidth: 0, fill: "#06b6d4" }}
-              dot={{ r: 2, strokeWidth: 1 }}
+              dot={{ r: 3, strokeWidth: 1.5, fill: "#6366f1" }}
               animationDuration={1500}
             />
           </LineChart>
